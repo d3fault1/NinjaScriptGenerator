@@ -98,7 +98,8 @@ namespace NinjaScriptGenerator
             //var output = JsonConvert.SerializeObject(strategyData, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented });
             //File.WriteAllText(@"F:\testjson.txt", output);
 
-            var input = File.ReadAllText(@"F:\testjson.txt");
+            //var input = File.ReadAllText(@"F:\testjson.txt");
+            var input = File.ReadAllText(args[0]);
             var data = JsonConvert.DeserializeObject<StrategyData>(input, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented });
             var retval = CodeGenerator.GenerateFromStrategyData(data);
             Console.ReadLine();
