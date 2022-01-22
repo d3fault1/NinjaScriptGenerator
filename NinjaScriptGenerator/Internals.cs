@@ -8,6 +8,7 @@
         public static string DuplicateVariables = "Error: Cannot Contain Multiple Variables with Same Name";
         public static string InvalidVariables = "Error: Variable Value is Incompatible with the Variable Type";
         public static string DuplicateInstruments = "Error: Cannot Contain Multiple Instruments with Same Setup";
+        public static string DuplicateTargetActions = "Error: Cannot Contain Multiple Target Actions with Same Parameters";
         public static string InvalidCompares = "Error: Compare Data is Invalid. Please Check if Proper Data is Supplied";
         public static string InvalidCondition = "Error: ConditionSet is Invalid. Please Check if Proper Data is Supplied";
         public static string InternalFatal = "Error: Something That Should Not be Happened Just Happened. Please Refer to the Developer";

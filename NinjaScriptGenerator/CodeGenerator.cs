@@ -2,6 +2,7 @@
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace NinjaScriptGenerator
@@ -110,6 +111,15 @@ namespace NinjaScriptGenerator
 
             foreach (Variable var in strategyData.Variables)
             {
+                if (strategyData.Variables.Count() != strategyData.Variables.Distinct().Count()) return Errors.DuplicateVariables;
+                try
+                {
+                    Convert.ChangeType(var.Value, (TypeCode)var.Type);
+                }
+                catch
+                {
+                    return Errors.InvalidVariables;
+                }
                 string type = var.Type == VariableType.Time ? "DateTime" : Type.GetType($"System.{var.Type}").ToString();
                 class_members.Add(new CodeMemberField(type, var.Name) { Attributes = MemberAttributes.Private });
                 if (var.Type == VariableType.Time) cond_setdef.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, var.Name), new CodeSnippetExpression($"DateTime.Parse(\"{var.Value}\", CultureInfo.InvariantCulture)")));
@@ -118,6 +128,7 @@ namespace NinjaScriptGenerator
 
             foreach (InstrumentData ins in strategyData.Instruments)
             {
+                if (strategyData.Instruments.Count() != strategyData.Instruments.Distinct().Count()) return Errors.DuplicateInstruments;
                 var namepieces = ins.Name.ToString().Split('_');
                 cond_setconf.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddDataSeries", new CodeExpression[] { new CodePrimitiveExpression($"{namepieces[1]} {namepieces[2]}-{namepieces[3]}"), new CodeSnippetExpression($"Data.BarsPeriodType.{ins.Type}"), new CodePrimitiveExpression(ins.Value), new CodeSnippetExpression("Data.MarketDataType.Last") })));
             }

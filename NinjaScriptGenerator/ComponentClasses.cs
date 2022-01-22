@@ -30,6 +30,23 @@ namespace NinjaScriptGenerator
         public ProfitLossType Type { get; set; }
         public TargetType TargetType { get; set; }
         public double Value { get; set; }
+
+        //Overrides
+        public override int GetHashCode()
+        {
+            return (Type.GetHashCode() * 3 + TargetType.GetHashCode()) * 3 + Value.GetHashCode();
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is TargetAction other)
+            {
+                if (Type == other.Type && TargetType == other.TargetType && Value == other.Value) return true;
+                else return false;
+            }
+            else return false;
+        }
     }
 
     //Instrument
@@ -38,6 +55,23 @@ namespace NinjaScriptGenerator
         public Instrument Name { get; set; }
         public InstrumentType Type { get; set; }
         public int Value { get; set; }
+
+        //Overrides
+        public override int GetHashCode()
+        {
+            return (Name.GetHashCode() * 3 + Type.GetHashCode()) * 3 + Value.GetHashCode();
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is InstrumentData other)
+            {
+                if (Name == other.Name && Type == other.Type && Value == other.Value) return true;
+                else return false;
+            }
+            else return false;
+        }
     }
 
     //Indicators
