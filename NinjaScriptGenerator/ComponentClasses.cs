@@ -29,7 +29,7 @@ namespace NinjaScriptGenerator
     {
         public ProfitLossType Type { get; set; }
         public TargetType TargetType { get; set; }
-        public double Value { get; set; }
+        public string Value { get; set; }
 
         //Overrides
         public override int GetHashCode()
@@ -84,7 +84,7 @@ namespace NinjaScriptGenerator
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -93,9 +93,9 @@ namespace NinjaScriptGenerator
         {
             return $"ADL({Price})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -116,14 +116,14 @@ namespace NinjaScriptGenerator
     class ADX : ICompareData, IIndicator
     {
         //Params
-        public int Period { get; set; }
+        public string Period { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -132,9 +132,9 @@ namespace NinjaScriptGenerator
         {
             return $"ADX({Price}, {Period})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -155,15 +155,15 @@ namespace NinjaScriptGenerator
     class Bollinger : ICompareData, IIndicator
     {
         //Params
-        public int Period { get; set; }
-        public int NumStdDev { get; set; }
+        public string Period { get; set; }
+        public string NumStdDev { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
         public BandValue ValuePlot { get; set; }
 
@@ -173,9 +173,9 @@ namespace NinjaScriptGenerator
         {
             return $"Bollinger({Price}, {NumStdDev}, {Period})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -196,14 +196,14 @@ namespace NinjaScriptGenerator
     class BOP : ICompareData, IIndicator
     {
         //Params
-        public int Smooth { get; set; }
+        public string Smooth { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -212,9 +212,9 @@ namespace NinjaScriptGenerator
         {
             return $"BOP({Price}, {Smooth})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -235,15 +235,15 @@ namespace NinjaScriptGenerator
     class ChaikinOscillator : ICompareData, IIndicator
     {
         //Params
-        public int Fast { get; set; }
-        public int Slow { get; set; }
+        public string Fast { get; set; }
+        public string Slow { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -252,9 +252,9 @@ namespace NinjaScriptGenerator
         {
             return $"ChaikinOscillator({Price}, {Fast}, {Slow})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -275,15 +275,15 @@ namespace NinjaScriptGenerator
     class ChaikinVolatility : ICompareData, IIndicator
     {
         //Params
-        public int MAPeriod { get; set; }
-        public int ChangeRatePeriod { get; set; }
+        public string MAPeriod { get; set; }
+        public string ChangeRatePeriod { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -292,9 +292,9 @@ namespace NinjaScriptGenerator
         {
             return $"ChaikinVolatility({Price}, {MAPeriod}, {ChangeRatePeriod})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -321,7 +321,7 @@ namespace NinjaScriptGenerator
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
         public CurrentDayOHLValue ValuePlot { get; set; }
 
@@ -331,9 +331,9 @@ namespace NinjaScriptGenerator
         {
             return $"CurrentDayOHL({Price})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -354,14 +354,14 @@ namespace NinjaScriptGenerator
     class DEMA : ICompareData, IIndicator
     {
         //Params
-        public int Period { get; set; }
+        public string Period { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -370,9 +370,9 @@ namespace NinjaScriptGenerator
         {
             return $"DEMA({Price}, {Period})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -393,14 +393,14 @@ namespace NinjaScriptGenerator
     class DoubleStochastics : ICompareData, IIndicator
     {
         //Params
-        public int Period { get; set; }
+        public string Period { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -409,9 +409,9 @@ namespace NinjaScriptGenerator
         {
             return $"DoubleStochastics({Price}, {Period})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -432,14 +432,14 @@ namespace NinjaScriptGenerator
     class EMA : ICompareData, IIndicator
     {
         //Params
-        public int Period { get; set; }
+        public string Period { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -448,9 +448,9 @@ namespace NinjaScriptGenerator
         {
             return $"EMA({Price}, {Period})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -479,7 +479,7 @@ namespace NinjaScriptGenerator
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
         public FibonacciPivotValue ValuePlot { get; set; }
 
@@ -489,9 +489,9 @@ namespace NinjaScriptGenerator
         {
             return $"FibonacciPivots({Price}, PivotRange.{Range}, HLCCalculationMode.{CalcMode}, 0, 0, 0, 20)";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -512,15 +512,15 @@ namespace NinjaScriptGenerator
     class KeltnerChannel : ICompareData, IIndicator
     {
         //Params
-        public int Period { get; set; }
-        public double OffsetMultiplier { get; set; }
+        public string Period { get; set; }
+        public string OffsetMultiplier { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
         public ChannelValue ValuePlot { get; set; }
 
@@ -530,9 +530,9 @@ namespace NinjaScriptGenerator
         {
             return $"KeltnerChannel({Price}, {OffsetMultiplier}, {Period})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -553,16 +553,16 @@ namespace NinjaScriptGenerator
     class MACD : ICompareData, IIndicator
     {
         //Params
-        public int Fast { get; set; }
-        public int Slow { get; set; }
-        public int Smooth { get; set; }
+        public string Fast { get; set; }
+        public string Slow { get; set; }
+        public string Smooth { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
         public MACDValue ValuePlot { get; set; }
 
@@ -572,7 +572,7 @@ namespace NinjaScriptGenerator
         {
             return $"MACD({Price}, {Fast}, {Slow}, {Smooth})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
             return Helper.ToStringHelperForOffset($"{varName}.{(ValuePlot == MACDValue.MACD ? "Default" : $"{ValuePlot}")}[{BarsAgo}]", Offset, OffsetType, Operator);
         }
@@ -595,14 +595,14 @@ namespace NinjaScriptGenerator
     class MAX : ICompareData, IIndicator
     {
         //Params
-        public int Period { get; set; }
+        public string Period { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -611,9 +611,9 @@ namespace NinjaScriptGenerator
         {
             return $"MAX({Price}, {Period})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -634,14 +634,14 @@ namespace NinjaScriptGenerator
     class MIN : ICompareData, IIndicator
     {
         //Params
-        public int Period { get; set; }
+        public string Period { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -650,9 +650,9 @@ namespace NinjaScriptGenerator
         {
             return $"MIN({Price}, {Period})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -681,7 +681,7 @@ namespace NinjaScriptGenerator
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
         public FibonacciPivotValue ValuePlot { get; set; }
 
@@ -691,9 +691,9 @@ namespace NinjaScriptGenerator
         {
             return $"Pivots({Price}, PivotRange.{Range}, HLCCalculationMode.{CalcMode}, 0, 0, 0, 20)";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -720,7 +720,7 @@ namespace NinjaScriptGenerator
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
         public PriorDayOHLCValue ValuePlot { get; set; }
 
@@ -730,9 +730,9 @@ namespace NinjaScriptGenerator
         {
             return $"PriorDayOHLC({Price})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -759,7 +759,7 @@ namespace NinjaScriptGenerator
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -768,9 +768,9 @@ namespace NinjaScriptGenerator
         {
             return $"Range({Price})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -790,15 +790,15 @@ namespace NinjaScriptGenerator
     }
     class RSI : ICompareData, IIndicator
     {
-        public int Period { get; set; }
-        public int Smooth { get; set; }
+        public string Period { get; set; }
+        public string Smooth { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
         public RSIValue ValuePlot { get; set; }
 
@@ -808,7 +808,7 @@ namespace NinjaScriptGenerator
         {
             return $"RSI({Price}, {Period}, {Smooth})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
             return Helper.ToStringHelperForOffset($"{varName}.{(ValuePlot == RSIValue.RSI ? "Default" : $"{ValuePlot}")}[{BarsAgo}]", Offset, OffsetType, Operator);
         }
@@ -831,14 +831,14 @@ namespace NinjaScriptGenerator
     class SMA : ICompareData, IIndicator
     {
         //Params
-        public int Period { get; set; }
+        public string Period { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -847,9 +847,9 @@ namespace NinjaScriptGenerator
         {
             return $"SMA({Price}, {Period})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -870,14 +870,14 @@ namespace NinjaScriptGenerator
     class StandardDeviation : ICompareData, IIndicator
     {
         //Params
-        public int Period { get; set; }
+        public string Period { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -886,9 +886,9 @@ namespace NinjaScriptGenerator
         {
             return $"StdDev({Price}, {Period})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -909,16 +909,16 @@ namespace NinjaScriptGenerator
     class Stochastics : ICompareData, IIndicator
     {
         //Params
-        public int PeriodD { get; set; }
-        public int PeriodK { get; set; }
-        public int Smooth { get; set; }
+        public string PeriodD { get; set; }
+        public string PeriodK { get; set; }
+        public string Smooth { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
         public StochasticsValue ValuePlot { get; set; }
 
@@ -928,9 +928,9 @@ namespace NinjaScriptGenerator
         {
             return $"Stochastics({Price}, {PeriodD}, {PeriodK}, {Smooth})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -951,15 +951,15 @@ namespace NinjaScriptGenerator
     class StochasticsFast : ICompareData, IIndicator
     {
         //Params
-        public int PeriodD { get; set; }
-        public int PeriodK { get; set; }
+        public string PeriodD { get; set; }
+        public string PeriodK { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
         public StochasticsValue ValuePlot { get; set; }
 
@@ -969,9 +969,9 @@ namespace NinjaScriptGenerator
         {
             return $"StochasticsFast({Price}, {PeriodD}, {PeriodK})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -992,14 +992,14 @@ namespace NinjaScriptGenerator
     class Swing : ICompareData, IIndicator
     {
         //Params
-        public int Strength { get; set; }
+        public string Strength { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
         public SwingValue ValuePlot { get; set; }
 
@@ -1009,9 +1009,9 @@ namespace NinjaScriptGenerator
         {
             return $"Swing({Price}, {Strength})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -1032,14 +1032,14 @@ namespace NinjaScriptGenerator
     class Trend : ICompareData, IIndicator
     {
         //Params
-        public int Period { get; set; }
+        public string Period { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -1048,9 +1048,9 @@ namespace NinjaScriptGenerator
         {
             return $"Trend({Price}, {Period})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -1071,16 +1071,16 @@ namespace NinjaScriptGenerator
     class UltimateOscillator : ICompareData, IIndicator
     {
         //Params
-        public int Fast { get; set; }
-        public int Intermediate { get; set; }
-        public int Slow { get; set; }
+        public string Fast { get; set; }
+        public string Intermediate { get; set; }
+        public string Slow { get; set; }
 
         //Options
         public PriceType Price { get; set; }
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -1089,9 +1089,9 @@ namespace NinjaScriptGenerator
         {
             return $"UltimateOscillator({Price}, {Fast}, {Intermediate}, {Slow})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -1118,7 +1118,7 @@ namespace NinjaScriptGenerator
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
 
 
@@ -1127,9 +1127,9 @@ namespace NinjaScriptGenerator
         {
             return $"VOL({Price})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -1151,7 +1151,7 @@ namespace NinjaScriptGenerator
     {
         //Params
         public DeviationType DeviationType { get; set; }
-        public double DeviationValue { get; set; }
+        public string DeviationValue { get; set; }
         public bool UseHighLow { get; set; }
 
         //Options
@@ -1159,7 +1159,7 @@ namespace NinjaScriptGenerator
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
         public int BarsAgo { get; set; }
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public bool PlotOnChart { get; set; }
         public ZigZagValue ValuePlot { get; set; }
 
@@ -1169,9 +1169,9 @@ namespace NinjaScriptGenerator
         {
             return $"ZigZag({Price}, DeviationType.{DeviationType}, {DeviationValue}, {UseHighLow})";
         }
-        public string ToFormatString(string varName)
+        public string ToFormatString(string varName, bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"{varName}.{ValuePlot}", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -1210,11 +1210,11 @@ namespace NinjaScriptGenerator
         //Options
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
-        public double Offset { get; set; }
+        public string Offset { get; set; }
 
 
         //Overrides
-        public string ToFormatString()
+        public string ToFormatString(bool includeBarsAgo = true)
         {
             return Helper.ToStringHelperForOffset("GetCurrentAsk(0)", Offset, OffsetType, Operator);
         }
@@ -1238,11 +1238,11 @@ namespace NinjaScriptGenerator
         //Options
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
-        public double Offset { get; set; }
+        public string Offset { get; set; }
 
 
         //Overrides
-        public string ToFormatString()
+        public string ToFormatString(bool includeBarsAgo = true)
         {
             return Helper.ToStringHelperForOffset("GetCurrentBid(0)", Offset, OffsetType, Operator);
         }
@@ -1266,14 +1266,14 @@ namespace NinjaScriptGenerator
         //Options
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public int BarsAgo { get; set; }
 
 
         //Overrides
-        public string ToFormatString()
+        public string ToFormatString(bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"Close[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"Close[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"Close", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -1295,14 +1295,14 @@ namespace NinjaScriptGenerator
         //Options
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public int BarsAgo { get; set; }
 
 
         //Overrides
-        public string ToFormatString()
+        public string ToFormatString(bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"High[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"High[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"High", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -1324,14 +1324,14 @@ namespace NinjaScriptGenerator
         //Options
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public int BarsAgo { get; set; }
 
 
         //Overrides
-        public string ToFormatString()
+        public string ToFormatString(bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"Low[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"Low[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"Low", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -1353,14 +1353,14 @@ namespace NinjaScriptGenerator
         //Options
         public OffsetType OffsetType { get; set; }
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
-        public double Offset { get; set; }
+        public string Offset { get; set; }
         public int BarsAgo { get; set; }
 
 
         //Overrides
-        public string ToFormatString()
+        public string ToFormatString(bool includeBarsAgo = true)
         {
-            return Helper.ToStringHelperForOffset($"Median[{BarsAgo}]", Offset, OffsetType, Operator);
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"Median[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"Median", Offset, OffsetType, Operator);
         }
         public override int GetHashCode()
         {
@@ -1382,7 +1382,7 @@ namespace NinjaScriptGenerator
     class AskVolume : ICompareData, IPriceAction
     {
         //Overrides
-        public string ToFormatString()
+        public string ToFormatString(bool includeBarsAgo = true)
         {
             return "GetCurrentAskVolume(0)";
         }
@@ -1404,7 +1404,7 @@ namespace NinjaScriptGenerator
     class BidVolume : ICompareData, IPriceAction
     {
         //Overrides
-        public string ToFormatString()
+        public string ToFormatString(bool includeBarsAgo = true)
         {
             return "GetCurrentBidVolume(0)";
         }
@@ -1429,9 +1429,9 @@ namespace NinjaScriptGenerator
 
 
         //Overrides
-        public string ToFormatString()
+        public string ToFormatString(bool includeBarsAgo = true)
         {
-            return $"Volume[{BarsAgo}]";
+            return includeBarsAgo ? $"Volume[{BarsAgo}]" : $"Volume";
         }
         public override int GetHashCode()
         {
@@ -1528,7 +1528,7 @@ namespace NinjaScriptGenerator
         }
     }
 
-    //User Variables
+    //User Variables and Inputs
     class Variable : ICompareData
     {
         public string Name { get; set; }
@@ -1556,6 +1556,11 @@ namespace NinjaScriptGenerator
             }
             else return false;
         }
+    }
+    class Input : Variable
+    {
+        public string Description { get; set; }
+        public string Minimum { get; set; }
     }
 
     //Actions

@@ -1,4 +1,8 @@
-﻿namespace NinjaScriptGenerator
+﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+namespace NinjaScriptGenerator
 {
     //Commons
     struct Errors
@@ -6,18 +10,26 @@
         public static string Success = "Code Successfully Generated";
         public static string IncompatibleCompares = "Error: Incompatible Comparing Pairs. Please Select Proper Pairs to Compare";
         public static string DuplicateVariables = "Error: Cannot Contain Multiple Variables with Same Name";
-        public static string InvalidVariables = "Error: Variable Value is Incompatible with the Variable Type";
+        public static string DuplicateInputs = "Error: Cannot Contain Multiple Input Parameters with Same Name";
+        public static string InvalidVariableName = "Error: Variable Name is Invalid";
+        public static string InvalidVariable = "Error: Variable Value is Incompatible with the Variable Type";
+        public static string InvalidVariableRef = "Error: Invalid Variable Reference. Variable Definition does not Exist";
+        public static string InvalidParam = "Error: Data Parameter is Incompatible with the Data Type";
+        public static string InvalidEnum = "Error: Parameter Type is Invalid";
         public static string DuplicateInstruments = "Error: Cannot Contain Multiple Instruments with Same Setup";
         public static string DuplicateTargetActions = "Error: Cannot Contain Multiple Target Actions with Same Parameters";
         public static string InvalidCompares = "Error: Compare Data is Invalid. Please Check if Proper Data is Supplied";
         public static string InvalidCondition = "Error: ConditionSet is Invalid. Please Check if Proper Data is Supplied";
         public static string InternalFatal = "Error: Something That Should Not be Happened Just Happened. Please Refer to the Developer";
     }
+
     class Helper
     {
-        public static string ToStringHelperForOffset(string input, double offset, OffsetType type, ArithmeticOperator sign)
+        public static string ToStringHelperForOffset(string input, string offset, OffsetType type, ArithmeticOperator sign)
         {
-            if (offset == 0) return input;
+            double val;
+            bool isRaw = Double.TryParse(offset, out val);
+            if (isRaw && val == 0) return input;
             switch (type)
             {
                 case OffsetType.Arithmetic:
@@ -26,9 +38,9 @@
                     {
                         case ArithmeticOperator.Plus:
                         default:
-                            return offset < 0 ? $"({input} + ({offset}))" : $"({input} + {offset})";
+                            return (isRaw && val >= 0) ? $"({input} + {offset})" : $"({input} + ({offset}))";
                         case ArithmeticOperator.Minus:
-                            return offset < 0 ? $"({input} - ({offset}))" : $"({input} - {offset})";
+                            return (isRaw && val >= 0) ? $"({input} - {offset})" : $"({input} - ({offset}))";
                         case ArithmeticOperator.Multiply:
                             return $"({input} * {offset})";
                         case ArithmeticOperator.Divide:
@@ -41,6 +53,224 @@
                 case OffsetType.Ticks:
                     return $"({input} + ({offset} * TickSize))";
             }
+        }
+
+        public static bool FormatComponents(StrategyData data, out string error)
+        {
+            data.Name = data.Name.Replace(" ", "");
+            if (data.Defaults == null || data.Name == null)
+            {
+                error = Errors.InternalFatal;
+                return false;
+            }
+            if (data.Description == null) data.Description = "";
+            if (data.Instruments == null) data.Instruments = new InstrumentData[0];
+            if (data.Variables == null) data.Variables = new Variable[0];
+            if (data.Inputs == null) data.Inputs = new Input[0];
+            if (data.ConditionSets == null) data.ConditionSets = new ConditionSet[0];
+            if (data.TargetActions == null) data.TargetActions = new TargetAction[0];
+
+
+            error = Errors.InvalidVariable;
+            foreach (var variable in data.Variables)
+            {
+                if (!Regex.IsMatch(variable.Name, "^[a-zA-Z_@][a-zA-Z_0-9]*$"))
+                {
+                    error = Errors.InvalidVariableName;
+                    return false;
+                }
+
+                try
+                {
+                    var proper = Convert.ChangeType(variable.Value, (TypeCode)variable.Type);
+                    if (variable.Type != VariableType.Time && variable.Type != VariableType.Double && variable.Type != VariableType.Int32) variable.Value = proper.ToString();
+                }
+                catch
+                {
+                    if (variable.Value == "")
+                    {
+                        switch (variable.Type)
+                        {
+                            case VariableType.Boolean:
+                                variable.Value = DefaultValue.BooleanDefault;
+                                break;
+                            case VariableType.Int32:
+                                variable.Value = DefaultValue.IntegerDefault;
+                                break;
+                            case VariableType.Double:
+                                variable.Value = DefaultValue.DoubleDefault;
+                                break;
+                            case VariableType.Time:
+                                variable.Value = DefaultValue.TimeDefault;
+                                break;
+                            case VariableType.String:
+                                variable.Value = "";
+                                break;
+                            default:
+                                return false;
+                        }
+                    }
+                    return false;
+                }
+            }
+
+            foreach (var input in data.Inputs)
+            {
+                if (!Regex.IsMatch(input.Name, "^[a-zA-Z@][a-zA-Z0-9]*$"))
+                {
+                    error = Errors.InvalidVariableName;
+                    return false;
+                }
+                input.Name = input.Name[0].ToString().ToUpperInvariant() + input.Name.Substring(1);
+
+                if (input.Type != VariableType.Int32 && input.Type != VariableType.Double && input.Minimum != "") return false;
+
+                try
+                {
+                    var proper = Convert.ChangeType(input.Value, (TypeCode)input.Type);
+                    if (input.Type != VariableType.Time && input.Type != VariableType.Double && input.Type != VariableType.Int32) input.Value = proper.ToString();
+                }
+                catch
+                {
+                    if (input.Value != "") return false;
+                }
+
+                try
+                {
+                    var proper = Convert.ChangeType(input.Minimum, (TypeCode)input.Type);
+                    input.Minimum = proper.ToString();
+                }
+                catch
+                {
+                    if (input.Minimum != "") return false;
+                }
+            }
+
+            error = Errors.InvalidParam;
+            foreach (var cnd_set in data.ConditionSets)
+            {
+                foreach (var cmp in cnd_set.Compares)
+                {
+                    var fprops = cmp.FirstObject.GetType().GetProperties().Where(obj => obj.Name == "Offset" || obj.Name == "Period" || obj.Name == "NumStdDev" || obj.Name == "Smooth" || obj.Name == "Fast" || obj.Name == "Slow" || obj.Name == "MAPeriod" || obj.Name == "ChangeRatePeriod" || obj.Name == "OffsetMultiplier" || obj.Name == "PeriodD" || obj.Name == "PeriodK" || obj.Name == "Strength" || obj.Name == "Intermediate" || obj.Name == "DeviationValue");
+                    var sprops = cmp.SecondObject.GetType().GetProperties().Where(obj => obj.Name == "Offset" || obj.Name == "Period" || obj.Name == "NumStdDev" || obj.Name == "Smooth" || obj.Name == "Fast" || obj.Name == "Slow" || obj.Name == "MAPeriod" || obj.Name == "ChangeRatePeriod" || obj.Name == "OffsetMultiplier" || obj.Name == "PeriodD" || obj.Name == "PeriodK" || obj.Name == "Strength" || obj.Name == "Intermediate" || obj.Name == "DeviationValue");
+                    foreach (var fprop in fprops)
+                    {
+                        Type type = typeof(int);
+                        if (fprop.Name == "Offset" || fprop.Name == "OffsetMultiplier" || fprop.Name == "DeviationValue") type = typeof(double);
+                        if (!TypeHandle(cmp.FirstObject, fprop.Name, type, data)) return false;
+                    }
+                    foreach (var sprop in sprops)
+                    {
+                        Type type = typeof(int);
+                        if (sprop.Name == "Offset" || sprop.Name == "OffsetMultiplier" || sprop.Name == "DeviationValue") type = typeof(double);
+                        if (!TypeHandle(cmp.FirstObject, sprop.Name, type, data)) return false;
+                    }
+                }
+            }
+
+            foreach (var tgt in data.TargetActions)
+            {
+                double num;
+                if (!Double.TryParse(tgt.Value, out num)) return false;
+                else tgt.Value = num.ToString();
+
+                if (!Enum.IsDefined(typeof(ProfitLossType), tgt.Type))
+                {
+                    error = Errors.InvalidEnum;
+                    return false;
+                }
+                if (!Enum.IsDefined(typeof(TargetType), tgt.TargetType))
+                {
+                    error = Errors.InvalidEnum;
+                    return false;
+                }
+            }
+
+            foreach (var ins in data.Instruments)
+            {
+                if (!Enum.IsDefined(typeof(Instrument), ins.Name))
+                {
+                    error = Errors.InvalidEnum;
+                    return false;
+                }
+                if (!Enum.IsDefined(typeof(InstrumentType), ins.Type))
+                {
+                    error = Errors.InvalidEnum;
+                    return false;
+                }
+            }
+
+            if (!Enum.IsDefined(typeof(CalculateMethod), data.Defaults.Calculate))
+            {
+                error = Errors.InvalidEnum;
+                return false;
+            }
+
+            error = "";
+            return true;
+        }
+
+        private static bool TypeHandle(ICompareData obj, string property, Type type, StrategyData data)
+        {
+            if (obj.GetType().GetProperty(property) != null)
+            {
+                string def;
+                switch (type.Name)
+                {
+                    case "Double":
+                        def = DefaultValue.DoubleDefault;
+                        break;
+                    case "Int32":
+                        def = DefaultValue.IntegerDefault;
+                        break;
+                    case "Boolean":
+                        def = DefaultValue.BooleanDefault;
+                        break;
+                    case "DateTime":
+                        def = DefaultValue.TimeDefault;
+                        break;
+                    default:
+                        def = "";
+                        break;
+                }
+                var f = (string)obj.GetType().GetProperty(property).GetValue(obj);
+                try
+                {
+                    var prop = Convert.ChangeType(f, type);
+                    obj.GetType().GetProperty(property).SetValue(obj, prop.ToString());
+                }
+                catch
+                {
+                    if (f == "") obj.GetType().GetProperty(property).SetValue(obj, def);
+                    else
+                    {
+                        var mv = data.Variables.FirstOrDefault(a => a.Name == f);
+                        var mi = data.Inputs.FirstOrDefault(a => a.Name == f);
+                        if (mv != null)
+                        {
+                            var tp = mv.Type == VariableType.Time ? Type.GetType("System.DateTime") : Type.GetType($"System.{mv.Type}");
+                            if (tp == type) return true;
+                            else return false;
+                        }
+                        if (mi != null)
+                        {
+                            var tp = mi.Type == VariableType.Time ? Type.GetType("System.DateTime") : Type.GetType($"System.{mi.Type}");
+                            if (tp == type) return true;
+                            else return false;
+                        }
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private struct DefaultValue
+        {
+            public static string IntegerDefault = "0";
+            public static string DoubleDefault = "0";
+            public static string BooleanDefault = "false";
+            public static string TimeDefault = "00:00";
         }
     }
 
@@ -227,11 +457,11 @@
     {
         bool PlotOnChart { get; set; }
         string ToCtorString();
-        string ToFormatString(string varName);
+        string ToFormatString(string varName, bool includeBarsAgo = true);
     }
     interface IPriceAction
     {
-        string ToFormatString();
+        string ToFormatString(bool includeBarsAgo = true);
     }
     interface IOperation
     {

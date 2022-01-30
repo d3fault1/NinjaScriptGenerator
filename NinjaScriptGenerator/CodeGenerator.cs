@@ -2,6 +2,7 @@
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -12,6 +13,8 @@ namespace NinjaScriptGenerator
         public static string GenerateFromStrategyData(StrategyData strategyData)
         {
             // Creating Code Structure...............................
+            string err;
+            if (!Helper.FormatComponents(strategyData, out err)) return err;
 
             CodeCompileUnit cunit = new CodeCompileUnit();
 
@@ -56,7 +59,8 @@ namespace NinjaScriptGenerator
             };
             strategyclass.BaseTypes.Add("Strategy");
 
-            var class_members = new List<CodeMemberField>();
+            var class_fields = new List<CodeMemberField>();
+            var class_properties = new List<CodeTypeMember>();
 
             CodeMemberMethod statechange = new CodeMemberMethod()
             {
@@ -83,7 +87,7 @@ namespace NinjaScriptGenerator
             cond_setdef.AddRange(new CodeStatement[]
             {
                 new CodeCommentStatement("Default Properties Logic"),
-                new CodeAssignStatement(new CodeVariableReferenceExpression("Description"), new CodePrimitiveExpression("@" + strategyData.Description)),
+                new CodeAssignStatement(new CodeVariableReferenceExpression("Description"), new CodeSnippetExpression($"@\"{strategyData.Description}\"")),
                 new CodeAssignStatement(new CodeVariableReferenceExpression("Name"), new CodePrimitiveExpression(strategyData.Name)),
                 new CodeAssignStatement(new CodeVariableReferenceExpression("Calculate"), new CodeSnippetExpression($"Calculate.{strategyData.Defaults.Calculate}")),
                 new CodeAssignStatement(new CodeVariableReferenceExpression("EntriesPerDirection"), new CodePrimitiveExpression(strategyData.Defaults.ContractsPerEntry)),
@@ -109,28 +113,46 @@ namespace NinjaScriptGenerator
 
             barupdate_statements.Add(new CodeConditionStatement(new CodeSnippetExpression("CurrentBars[0] < 0"), new CodeStatement[] { new CodeMethodReturnStatement() }));
 
+            int inp_counter = 1;
+            foreach (Input inp in strategyData.Inputs)
+            {
+                if (strategyData.Inputs.Count() != strategyData.Inputs.Distinct().Count()) return Errors.DuplicateInputs;
+                string type = inp.Type == VariableType.Time ? "DateTime" : Type.GetType($"System.{inp.Type}").ToString();
+                string backing_var_name = $"_{inp.Name}";
+                while (strategyData.Variables.Where(a => a.Name == backing_var_name).Count() > 0) backing_var_name = $"_{backing_var_name}";
+                var backing = new CodeMemberField(new CodeTypeReference(type), backing_var_name) { Attributes = MemberAttributes.Private };
+                var prop = new CodeMemberProperty() { Name = inp.Name, Type = new CodeTypeReference(type), Attributes = MemberAttributes.Public | MemberAttributes.Final };
+                prop.GetStatements.Add(new CodeMethodReturnStatement(new CodeFieldReferenceExpression(null, backing_var_name)));
+                prop.SetStatements.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, backing_var_name), new CodePropertySetValueReferenceExpression()));
+                prop.CustomAttributes.Add(new CodeAttributeDeclaration("NinjaScriptProperty"));
+                if ((inp.Type == VariableType.Int32 || inp.Type == VariableType.Double) && inp.Minimum != "") prop.CustomAttributes.Add(new CodeAttributeDeclaration("Range", new CodeAttributeArgument(new CodeSnippetExpression(inp.Minimum)), new CodeAttributeArgument(new CodeSnippetExpression($"{Type.GetType(type).Name}.MaxValue"))));
+                else if (inp.Type == VariableType.Time) prop.CustomAttributes.Add(new CodeAttributeDeclaration("PropertyEditor", new CodeAttributeArgument(new CodePrimitiveExpression("NinjaTrader.Gui.Tools.TimeEditorKey"))));
+                prop.CustomAttributes.Add(new CodeAttributeDeclaration("Display", new CodeAttributeArgument("Name", new CodePrimitiveExpression(inp.Name)), new CodeAttributeArgument("Description", new CodePrimitiveExpression(inp.Description)), new CodeAttributeArgument("Order", new CodePrimitiveExpression(inp_counter++)), new CodeAttributeArgument("GroupName", new CodePrimitiveExpression("Parameters"))));
+                class_fields.Add(backing);
+                class_properties.Add(prop);
+                if (inp.Value != "")
+                {
+                    if (inp.Type == VariableType.Time) cond_setdef.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, inp.Name), new CodeSnippetExpression($"DateTime.Parse(\"{inp.Value}\", CultureInfo.InvariantCulture)")));
+                    else if (inp.Type == VariableType.String) cond_setdef.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, inp.Name), new CodePrimitiveExpression(inp.Value)));
+                    else cond_setdef.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, inp.Name), new CodeSnippetExpression(inp.Value)));
+                }
+            }
+
             foreach (Variable var in strategyData.Variables)
             {
                 if (strategyData.Variables.Count() != strategyData.Variables.Distinct().Count()) return Errors.DuplicateVariables;
-                try
-                {
-                    Convert.ChangeType(var.Value, (TypeCode)var.Type);
-                }
-                catch
-                {
-                    return Errors.InvalidVariables;
-                }
                 string type = var.Type == VariableType.Time ? "DateTime" : Type.GetType($"System.{var.Type}").ToString();
-                class_members.Add(new CodeMemberField(type, var.Name) { Attributes = MemberAttributes.Private });
+                class_fields.Add(new CodeMemberField(type, var.Name) { Attributes = MemberAttributes.Private });
                 if (var.Type == VariableType.Time) cond_setdef.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, var.Name), new CodeSnippetExpression($"DateTime.Parse(\"{var.Value}\", CultureInfo.InvariantCulture)")));
-                else cond_setdef.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, var.Name), new CodePrimitiveExpression(Convert.ChangeType(var.Value, (TypeCode)var.Type))));
+                else if (var.Type == VariableType.String) cond_setdef.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, var.Name), new CodePrimitiveExpression(var.Value)));
+                else cond_setdef.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, var.Name), new CodeSnippetExpression(var.Value)));
             }
 
             foreach (InstrumentData ins in strategyData.Instruments)
             {
                 if (strategyData.Instruments.Count() != strategyData.Instruments.Distinct().Count()) return Errors.DuplicateInstruments;
                 var namepieces = ins.Name.ToString().Split('_');
-                cond_setconf.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddDataSeries", new CodeExpression[] { new CodePrimitiveExpression($"{namepieces[1]} {namepieces[2]}-{namepieces[3]}"), new CodeSnippetExpression($"Data.BarsPeriodType.{ins.Type}"), new CodePrimitiveExpression(ins.Value), new CodeSnippetExpression("Data.MarketDataType.Last") })));
+                cond_setconf.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddDataSeries", new CodePrimitiveExpression($"{namepieces[1]} {namepieces[2]}-{namepieces[3]}"), new CodeSnippetExpression($"Data.BarsPeriodType.{ins.Type}"), new CodePrimitiveExpression(ins.Value), new CodeSnippetExpression("Data.MarketDataType.Last"))));
             }
 
             cond_setdatald.Add(new CodeCommentStatement("DataLoaded logics here..."));
@@ -149,14 +171,9 @@ namespace NinjaScriptGenerator
                     if (cmp.FirstObject == null || cmp.SecondObject == null || !Enum.IsDefined(typeof(CompareType), cmp.Operation)) return Errors.InvalidCompares;
                     if (cmp.Operation == CompareType.CrossAbove || cmp.Operation == CompareType.CrossBelow)
                     {
-                        if (cmp.FirstObject.GetType().GetProperty("Offset") != null)
-                        {
-                            if ((double)cmp.FirstObject.GetType().GetProperty("Offset").GetValue(cmp.FirstObject) != 0) return Errors.IncompatibleCompares;
-                        }
-                        if (cmp.SecondObject.GetType().GetProperty("Offset") != null)
-                        {
-                            if ((double)cmp.SecondObject.GetType().GetProperty("Offset").GetValue(cmp.SecondObject) != 0) return Errors.IncompatibleCompares;
-                        }
+                        if (Double.Parse((string)cmp.FirstObject.GetType().GetProperty("Offset")?.GetValue(cmp.FirstObject)) != 0) return Errors.IncompatibleCompares;
+                        if (Double.Parse((string)cmp.SecondObject.GetType().GetProperty("Offset")?.GetValue(cmp.SecondObject)) != 0) return Errors.IncompatibleCompares;
+
                         if (cmp.FirstObject is Ask || cmp.FirstObject is AskVolume || cmp.FirstObject is Bid || cmp.FirstObject is BidVolume || cmp.FirstObject is DateValue || cmp.FirstObject is TimeValue || cmp.FirstObject is DayofWeek) return Errors.IncompatibleCompares;
                         if (cmp.SecondObject is Ask || cmp.SecondObject is AskVolume || cmp.SecondObject is Bid || cmp.SecondObject is BidVolume || cmp.SecondObject is DateValue || cmp.SecondObject is TimeValue || cmp.SecondObject is DayofWeek) return Errors.IncompatibleCompares;
                         if (cmp.SecondObject is Variable)
@@ -174,7 +191,7 @@ namespace NinjaScriptGenerator
                                 if (cmp.SecondObject is Variable) return Errors.IncompatibleCompares;
                                 else if (cmp.SecondObject is IPriceAction)
                                 {
-                                    expression_scnd = ((IPriceAction)cmp.SecondObject).ToFormatString();
+                                    expression_scnd = ((IPriceAction)cmp.SecondObject).ToFormatString(false);
                                 }
                                 else if (cmp.SecondObject is IIndicator)
                                 {
@@ -191,10 +208,10 @@ namespace NinjaScriptGenerator
                                             var num = pairs[type].Count + 1;
                                             varName += num;
                                             pairs[type].Add(cmp.SecondObject, num);
-                                            class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                            class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                             cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
                                             cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                            cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                            cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                         }
                                     }
                                     else
@@ -202,12 +219,12 @@ namespace NinjaScriptGenerator
                                         pairs.Add(type, new Dictionary<ICompareData, int>());
                                         pairs[type].Add(cmp.SecondObject, 1);
                                         varName += "1";
-                                        class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                        class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                     }
-                                    expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName);
+                                    expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName, false);
                                 }
                                 else return Errors.InternalFatal;
                             }
@@ -215,7 +232,7 @@ namespace NinjaScriptGenerator
                         }
                         else if (cmp.FirstObject is IPriceAction)
                         {
-                            expression_frst = ((IPriceAction)cmp.FirstObject).ToFormatString();
+                            expression_frst = ((IPriceAction)cmp.FirstObject).ToFormatString(false);
                             if (cmp.SecondObject is IIndicator)
                             {
                                 var type = cmp.SecondObject.GetType();
@@ -231,10 +248,10 @@ namespace NinjaScriptGenerator
                                         var num = pairs[type].Count + 1;
                                         varName += num;
                                         pairs[type].Add(cmp.SecondObject, num);
-                                        class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                        class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                     }
                                 }
                                 else
@@ -242,18 +259,18 @@ namespace NinjaScriptGenerator
                                     pairs.Add(type, new Dictionary<ICompareData, int>());
                                     pairs[type].Add(cmp.SecondObject, 1);
                                     varName += "1";
-                                    class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                    class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                 }
-                                expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName);
+                                expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName, false);
                             }
                             else if (cmp.SecondObject is Variable) expression_scnd = ((Variable)cmp.SecondObject).ToFormatString();
                             else if (cmp.SecondObject is IPriceAction)
                             {
                                 if (cmp.FirstObject is Volume && cmp.SecondObject is Volume) return Errors.IncompatibleCompares;
-                                else expression_scnd = ((IPriceAction)cmp.SecondObject).ToFormatString();
+                                else expression_scnd = ((IPriceAction)cmp.SecondObject).ToFormatString(false);
                             }
                         }
                         else if (cmp.FirstObject is IIndicator)
@@ -271,10 +288,10 @@ namespace NinjaScriptGenerator
                                     var num = pairs[type].Count + 1;
                                     varName += num;
                                     pairs[type].Add(cmp.FirstObject, num);
-                                    class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                    class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.FirstObject).ToCtorString())));
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                 }
                             }
                             else
@@ -282,14 +299,14 @@ namespace NinjaScriptGenerator
                                 pairs.Add(type, new Dictionary<ICompareData, int>());
                                 pairs[type].Add(cmp.FirstObject, 1);
                                 varName += "1";
-                                class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                 cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.FirstObject).ToCtorString())));
                                 cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                             }
-                            expression_frst = ((IIndicator)cmp.FirstObject).ToFormatString(varName);
+                            expression_frst = ((IIndicator)cmp.FirstObject).ToFormatString(varName, false);
                             if (cmp.SecondObject is Variable) expression_scnd = ((Variable)cmp.SecondObject).ToFormatString();
-                            else if (cmp.SecondObject is IPriceAction) expression_scnd = ((IPriceAction)cmp.SecondObject).ToFormatString();
+                            else if (cmp.SecondObject is IPriceAction) expression_scnd = ((IPriceAction)cmp.SecondObject).ToFormatString(false);
                             else if (cmp.SecondObject is IIndicator)
                             {
                                 type = cmp.SecondObject.GetType();
@@ -305,10 +322,10 @@ namespace NinjaScriptGenerator
                                         var num = pairs[type].Count + 1;
                                         varName += num;
                                         pairs[type].Add(cmp.SecondObject, num);
-                                        class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                        class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                     }
                                 }
                                 else
@@ -316,16 +333,16 @@ namespace NinjaScriptGenerator
                                     pairs.Add(type, new Dictionary<ICompareData, int>());
                                     pairs[type].Add(cmp.SecondObject, 1);
                                     varName += "1";
-                                    class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                    class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                 }
-                                expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName);
+                                expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName, false);
                             }
                             else return Errors.InternalFatal;
                         }
-                        conditions.Add(new CodeMethodInvokeExpression(null, cmp.Operation.ToString(), new CodeExpression[] { new CodeSnippetExpression(expression_frst), new CodeSnippetExpression(expression_scnd), new CodePrimitiveExpression(1) }));
+                        if (expression_frst != "" && expression_scnd != "") conditions.Add(new CodeMethodInvokeExpression(null, cmp.Operation.ToString(), new CodeSnippetExpression(expression_frst), new CodeSnippetExpression(expression_scnd), new CodePrimitiveExpression(1)));
                     }
                     else
                     {
@@ -411,10 +428,10 @@ namespace NinjaScriptGenerator
                                             var num = pairs[type].Count + 1;
                                             varName += num;
                                             pairs[type].Add(cmp.SecondObject, num);
-                                            class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                            class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                             cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
                                             cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                            cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                            cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                         }
                                     }
                                     else
@@ -422,10 +439,10 @@ namespace NinjaScriptGenerator
                                         pairs.Add(type, new Dictionary<ICompareData, int>());
                                         pairs[type].Add(cmp.SecondObject, 1);
                                         varName += "1";
-                                        class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                        class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                     }
                                     expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName);
                                 }
@@ -449,10 +466,10 @@ namespace NinjaScriptGenerator
                                         var num = pairs[type].Count + 1;
                                         varName += num;
                                         pairs[type].Add(cmp.FirstObject, num);
-                                        class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                        class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.FirstObject).ToCtorString())));
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                     }
                                 }
                                 else
@@ -460,10 +477,10 @@ namespace NinjaScriptGenerator
                                     pairs.Add(type, new Dictionary<ICompareData, int>());
                                     pairs[type].Add(cmp.FirstObject, 1);
                                     varName += "1";
-                                    class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                    class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.FirstObject).ToCtorString())));
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                 }
                                 expression_frst = ((IIndicator)cmp.FirstObject).ToFormatString(varName);
                             }
@@ -486,10 +503,10 @@ namespace NinjaScriptGenerator
                                         var num = pairs[type].Count + 1;
                                         varName += num;
                                         pairs[type].Add(cmp.SecondObject, num);
-                                        class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                        class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                     }
                                 }
                                 else
@@ -497,10 +514,10 @@ namespace NinjaScriptGenerator
                                     pairs.Add(type, new Dictionary<ICompareData, int>());
                                     pairs[type].Add(cmp.SecondObject, 1);
                                     varName += "1";
-                                    class_members.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Family });
+                                    class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeExpression[] { new CodeSnippetExpression($"{varName}") })));
+                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                 }
                                 expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName);
                             }
@@ -519,14 +536,14 @@ namespace NinjaScriptGenerator
                 {
                     if (cnd_set.Operations[i] is Long)
                     {
-                        if (cnd_set.Operations[i].Action == TargetActionType.Entry) actions.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "EnterLong", new CodeExpression[] { new CodeSnippetExpression($"{(cnd_set.Operations[i].Quantity == 0 ? strategyData.Defaults.ContractsPerEntry : cnd_set.Operations[i].Quantity)}"), new CodeSnippetExpression("\"\"") })));
-                        else if (cnd_set.Operations[i].Action == TargetActionType.Exit) actions.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "ExitLong", new CodeExpression[] { new CodeSnippetExpression($"{(cnd_set.Operations[i].Quantity == 0 ? strategyData.Defaults.ContractsPerEntry : cnd_set.Operations[i].Quantity)}"), new CodeSnippetExpression("\"\""), new CodeSnippetExpression("\"\"") })));
+                        if (cnd_set.Operations[i].Action == TargetActionType.Entry) actions.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "EnterLong", new CodeSnippetExpression($"{(cnd_set.Operations[i].Quantity <= 0 ? strategyData.Defaults.ContractsPerEntry : cnd_set.Operations[i].Quantity)}"), new CodePrimitiveExpression(""))));
+                        else if (cnd_set.Operations[i].Action == TargetActionType.Exit) actions.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "ExitLong", new CodeSnippetExpression($"{(cnd_set.Operations[i].Quantity <= 0 ? strategyData.Defaults.ContractsPerEntry : cnd_set.Operations[i].Quantity)}"), new CodePrimitiveExpression(""), new CodePrimitiveExpression(""))));
                         else return Errors.InternalFatal;
                     }
                     else if (cnd_set.Operations[i] is Short)
                     {
-                        if (cnd_set.Operations[i].Action == TargetActionType.Entry) actions.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "EnterShort", new CodeExpression[] { new CodeSnippetExpression($"{(cnd_set.Operations[i].Quantity == 0 ? strategyData.Defaults.ContractsPerEntry : cnd_set.Operations[i].Quantity)}"), new CodeSnippetExpression("\"\"") })));
-                        else if (cnd_set.Operations[i].Action == TargetActionType.Exit) actions.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "ExitShort", new CodeExpression[] { new CodeSnippetExpression($"{(cnd_set.Operations[i].Quantity == 0 ? strategyData.Defaults.ContractsPerEntry : cnd_set.Operations[i].Quantity)}"), new CodeSnippetExpression("\"\""), new CodeSnippetExpression("\"\"") })));
+                        if (cnd_set.Operations[i].Action == TargetActionType.Entry) actions.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "EnterShort", new CodeSnippetExpression($"{(cnd_set.Operations[i].Quantity <= 0 ? strategyData.Defaults.ContractsPerEntry : cnd_set.Operations[i].Quantity)}"), new CodePrimitiveExpression(""))));
+                        else if (cnd_set.Operations[i].Action == TargetActionType.Exit) actions.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "ExitShort", new CodeSnippetExpression($"{(cnd_set.Operations[i].Quantity <= 0 ? strategyData.Defaults.ContractsPerEntry : cnd_set.Operations[i].Quantity)}"), new CodePrimitiveExpression(""), new CodePrimitiveExpression(""))));
                         else return Errors.InternalFatal;
                     }
                     else return Errors.InternalFatal;
@@ -553,8 +570,8 @@ namespace NinjaScriptGenerator
             foreach (var ta in strategyData.TargetActions)
             {
                 if (ta.Type == ProfitLossType.Disabled) continue;
-                if (ta.TargetType == TargetType.TakeProfit) cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "SetProfitTarget", new CodeExpression[] { new CodePrimitiveExpression(""), new CodeSnippetExpression($"CalculationMode.{ta.Type}"), new CodeSnippetExpression($"{ta.Value}") })));
-                else if (ta.TargetType == TargetType.StopLoss) cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "SetStopLoss", new CodeExpression[] { new CodePrimitiveExpression(""), new CodeSnippetExpression($"CalculationMode.{ta.Type}"), new CodeSnippetExpression($"{ta.Value}"), new CodePrimitiveExpression(false) })));
+                if (ta.TargetType == TargetType.TakeProfit) cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "SetProfitTarget", new CodePrimitiveExpression(""), new CodeSnippetExpression($"CalculationMode.{ta.Type}"), new CodeSnippetExpression($"{ta.Value}"))));
+                else if (ta.TargetType == TargetType.StopLoss) cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "SetStopLoss", new CodePrimitiveExpression(""), new CodeSnippetExpression($"CalculationMode.{ta.Type}"), new CodeSnippetExpression($"{ta.Value}"), new CodePrimitiveExpression(false))));
                 else return Errors.InternalFatal;
             }
 
@@ -582,26 +599,35 @@ namespace NinjaScriptGenerator
 
             barupdate.Statements.AddRange(barupdate_statements.ToArray());
 
+            if (class_properties.Count > 0)
+            {
+                class_properties[0].StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, "Properties"));
+                class_properties[class_properties.Count - 1].EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, ""));
+            }
+
             cunit.Namespaces.Add(gns);
             cunit.Namespaces.Add(ns);
             ns.Types.Add(strategyclass);
-            strategyclass.Members.AddRange(class_members.ToArray());
+            strategyclass.Members.AddRange(class_fields.ToArray());
             strategyclass.Members.Add(new CodeSnippetTypeMember());
             strategyclass.Members.Add(statechange);
             strategyclass.Members.Add(new CodeSnippetTypeMember());
             strategyclass.Members.Add(barupdate);
+            strategyclass.Members.Add(new CodeSnippetTypeMember());
+            strategyclass.Members.AddRange(class_properties.ToArray());
 
             CodeDomProvider provider = CodeDomProvider.CreateProvider("CSharp");
             CodeGeneratorOptions op = new CodeGeneratorOptions();
             op.BlankLinesBetweenMembers = false;
             op.BracingStyle = "C";
             op.VerbatimOrder = true;
-            //using (StreamWriter sw = new StreamWriter(File.OpenWrite("F:\\bal.cs")))
-            //{
-            //    provider.GenerateCodeFromCompileUnit(cunit, sw, op);
-            //}
 
-            provider.GenerateCodeFromCompileUnit(cunit, Console.Out, op);
+            using (StreamWriter sw = new StreamWriter(File.OpenWrite($"{strategyData.Name}.cs")))
+            {
+                provider.GenerateCodeFromCompileUnit(cunit, sw, op);
+            }
+
+            //provider.GenerateCodeFromCompileUnit(cunit, Console.Out, op);
 
             return Errors.Success;
         }

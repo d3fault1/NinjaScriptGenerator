@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using Newtonsoft.Json;
 using System.IO;
+using System.Threading;
 
 namespace NinjaScriptGenerator
 {
@@ -29,16 +31,23 @@ namespace NinjaScriptGenerator
             //    Type = VariableType.Int32,
             //    Value = "1"
             //};
+            //Input ip = new Input
+            //{
+            //    Name = "MyInput",
+            //    Type = VariableType.Double,
+            //    Value = "5.5",
+            //    Minimum = "1"
+            //};
             //ConditionSet cs = new ConditionSet
             //{
             //    Compares = new CompareData[] { new CompareData
             //        {
             //            FirstObject = new Bollinger
             //            {
-            //                Period = 2,
-            //                NumStdDev = 1,
+            //                Period = "2",
+            //                NumStdDev = "1",
             //                BarsAgo = 1,
-            //                Offset = 0.5,
+            //                Offset = "0.5",
             //                OffsetType = OffsetType.Arithmetic,
             //                PlotOnChart = true,
             //                Price = PriceType.Weighted,
@@ -47,7 +56,7 @@ namespace NinjaScriptGenerator
             //            SecondObject = new CurrentDayOHL
             //            {
             //                BarsAgo = 1,
-            //                Offset = 2,
+            //                Offset = "2",
             //                OffsetType = OffsetType.Arithmetic,
             //                PlotOnChart = true,
             //                Price = PriceType.High,
@@ -59,10 +68,10 @@ namespace NinjaScriptGenerator
             //        {
             //            FirstObject = new Bollinger
             //            {
-            //                Period = 2,
-            //                NumStdDev = 1,
+            //                Period = "2",
+            //                NumStdDev = "1",
             //                BarsAgo = 5,
-            //                Offset = 2,
+            //                Offset = "2",
             //                OffsetType = OffsetType.Pips,
             //                PlotOnChart = true,
             //                Price = PriceType.Weighted,
@@ -71,7 +80,7 @@ namespace NinjaScriptGenerator
             //            SecondObject = new High
             //            {
             //                BarsAgo = 8,
-            //                Offset = -5.5,
+            //                Offset = "-5.5",
             //                OffsetType = OffsetType.Percent,
             //                Operator = ArithmeticOperator.Divide
             //            },
@@ -89,20 +98,23 @@ namespace NinjaScriptGenerator
             //{
             //    TargetType = TargetType.StopLoss,
             //    Type = ProfitLossType.Price,
-            //    Value = -5
+            //    Value = "-5"
             //};
             //strategyData.Instruments = new InstrumentData[] { id };
             //strategyData.Variables = new Variable[] { vr };
+            //strategyData.Inputs = new Input[] { ip };
             //strategyData.ConditionSets = new ConditionSet[] { cs };
             //strategyData.TargetActions = new TargetAction[] { ta };
-            //var output = JsonConvert.SerializeObject(strategyData, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented });
-            //File.WriteAllText(@"F:\testjson.txt", output);
+            //var output = JsonConvert.SerializeObject(strategyData, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented, Culture = CultureInfo.InvariantCulture });
+            //File.WriteAllText(@"F:\sample.json", output);
 
-            var input = File.ReadAllText(@"F:\testjson.txt");
+            var input = File.ReadAllText(@"sample.json");
             //var input = File.ReadAllText(args[0]);
-            var data = JsonConvert.DeserializeObject<StrategyData>(input, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented });
+            var data = JsonConvert.DeserializeObject<StrategyData>(input, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented, Culture = CultureInfo.InvariantCulture });
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+            
             var retval = CodeGenerator.GenerateFromStrategyData(data);
-            Console.ReadLine();
             Console.WriteLine(retval);
             Console.ReadLine();
         }
