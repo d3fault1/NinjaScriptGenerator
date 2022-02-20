@@ -108,15 +108,28 @@ namespace NinjaScriptGenerator
             //var output = JsonConvert.SerializeObject(strategyData, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented, Culture = CultureInfo.InvariantCulture });
             //File.WriteAllText(@"F:\sample.json", output);
 
-            var input = File.ReadAllText(@"sample.json");
-            //var input = File.ReadAllText(args[0]);
-            var data = JsonConvert.DeserializeObject<StrategyData>(input, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented, Culture = CultureInfo.InvariantCulture });
-            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
-            
-            var retval = CodeGenerator.GenerateFromStrategyData(data);
-            Console.WriteLine(retval);
-            Console.ReadLine();
+            try
+            {
+                //var input = File.ReadAllText(args[0]);
+                var input = File.ReadAllText(@"data.json");
+                try
+                {
+                    var data = JsonConvert.DeserializeObject<StrategyData>(input, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented, Culture = CultureInfo.InvariantCulture });
+                    CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+                    CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+
+                    var retval = CodeGenerator.GenerateFromStrategyData(data);
+                    Console.WriteLine(retval);
+                }
+                catch
+                {
+                    Console.WriteLine("Error: Invalid JSON, Please check proper formats for the JSON");
+                }
+            }
+            catch
+            {
+                //Console.WriteLine("Error: File not found");
+            }
         }
     }
 }

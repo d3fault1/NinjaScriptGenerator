@@ -57,7 +57,6 @@ namespace NinjaScriptGenerator
 
         public static bool FormatComponents(StrategyData data, out string error)
         {
-            data.Name = data.Name.Replace(" ", "");
             if (data.Defaults == null || data.Name == null)
             {
                 error = Errors.InternalFatal;
@@ -69,6 +68,13 @@ namespace NinjaScriptGenerator
             if (data.Inputs == null) data.Inputs = new Input[0];
             if (data.ConditionSets == null) data.ConditionSets = new ConditionSet[0];
             if (data.TargetActions == null) data.TargetActions = new TargetAction[0];
+            if (data.Name == "")
+            {
+                error = Errors.InternalFatal;
+                return false;
+            }
+
+            data.Name = data.Name.Replace(" ", "");
 
 
             error = Errors.InvalidVariable;
@@ -171,7 +177,11 @@ namespace NinjaScriptGenerator
             foreach (var tgt in data.TargetActions)
             {
                 double num;
-                if (!Double.TryParse(tgt.Value, out num)) return false;
+                if (!Double.TryParse(tgt.Value, out num))
+                {
+                    if (tgt.Value == "") tgt.Value = "0";
+                    else return false;
+                }
                 else tgt.Value = num.ToString();
 
                 if (!Enum.IsDefined(typeof(ProfitLossType), tgt.Type))

@@ -570,7 +570,8 @@ namespace NinjaScriptGenerator
             foreach (var ta in strategyData.TargetActions)
             {
                 if (ta.Type == ProfitLossType.Disabled) continue;
-                if (ta.TargetType == TargetType.TakeProfit) cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "SetProfitTarget", new CodePrimitiveExpression(""), new CodeSnippetExpression($"CalculationMode.{ta.Type}"), new CodeSnippetExpression($"{ta.Value}"))));
+                if (Convert.ToDouble(ta.Value) == 0) ta.Value = strategyData.Defaults.ContractsPerEntry.ToString();
+                if (ta.TargetType == TargetType.TakeProfit) cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "SetProfitTarget", new CodePrimitiveExpression(""), new CodeSnippetExpression($"CalculationMode.{ta.Type}"), new CodeSnippetExpression($"{ ta.Value }"))));
                 else if (ta.TargetType == TargetType.StopLoss) cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "SetStopLoss", new CodePrimitiveExpression(""), new CodeSnippetExpression($"CalculationMode.{ta.Type}"), new CodeSnippetExpression($"{ta.Value}"), new CodePrimitiveExpression(false))));
                 else return Errors.InternalFatal;
             }

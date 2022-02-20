@@ -1,34 +1,47 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace NinjaScriptGenerator
 {
     class CompareData
     {
+        [JsonProperty(Required = Required.Always)]
         public ICompareData FirstObject { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ICompareData SecondObject { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public CompareType Operation { get; set; }
     }
 
     class ConditionSet
     {
+        [JsonProperty(Required = Required.Always)]
         public CompareData[] Compares { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public IOperation[] Operations { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ConditionType ConditionType { get; set; }
     }
 
     //Default Properties
     class DefaultProperties
     {
+        [JsonProperty(Required = Required.Always)]
         public CalculateMethod Calculate { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool ExitOnSessionClose { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public int ContractsPerEntry { get; set; }
     }
 
     //Stops And Targets
     class TargetAction
     {
+        [JsonProperty(Required = Required.Always)]
         public ProfitLossType Type { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public TargetType TargetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Value { get; set; }
 
         //Overrides
@@ -52,8 +65,11 @@ namespace NinjaScriptGenerator
     //Instrument
     class InstrumentData
     {
+        [JsonProperty(Required = Required.Always)]
         public Instrument Name { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public InstrumentType Type { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public int Value { get; set; }
 
         //Overrides
@@ -80,11 +96,17 @@ namespace NinjaScriptGenerator
         //Params
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -116,14 +138,21 @@ namespace NinjaScriptGenerator
     class ADX : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Period { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -155,16 +184,25 @@ namespace NinjaScriptGenerator
     class Bollinger : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Period { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string NumStdDev { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public BandValue ValuePlot { get; set; }
 
 
@@ -196,14 +234,21 @@ namespace NinjaScriptGenerator
     class BOP : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Smooth { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -235,15 +280,23 @@ namespace NinjaScriptGenerator
     class ChaikinOscillator : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Fast { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Slow { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -275,15 +328,23 @@ namespace NinjaScriptGenerator
     class ChaikinVolatility : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string MAPeriod { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string ChangeRatePeriod { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -317,12 +378,19 @@ namespace NinjaScriptGenerator
         //Params
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public CurrentDayOHLValue ValuePlot { get; set; }
 
 
@@ -354,14 +422,21 @@ namespace NinjaScriptGenerator
     class DEMA : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Period { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -393,14 +468,21 @@ namespace NinjaScriptGenerator
     class DoubleStochastics : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Period { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -432,14 +514,21 @@ namespace NinjaScriptGenerator
     class EMA : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Period { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -471,16 +560,25 @@ namespace NinjaScriptGenerator
     class FibonacciPivots : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public PivotRange Range { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public HLCCalculationMode CalcMode { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public FibonacciPivotValue ValuePlot { get; set; }
 
 
@@ -512,16 +610,25 @@ namespace NinjaScriptGenerator
     class KeltnerChannel : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Period { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string OffsetMultiplier { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ChannelValue ValuePlot { get; set; }
 
 
@@ -553,17 +660,27 @@ namespace NinjaScriptGenerator
     class MACD : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Fast { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Slow { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Smooth { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public MACDValue ValuePlot { get; set; }
 
 
@@ -595,14 +712,21 @@ namespace NinjaScriptGenerator
     class MAX : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Period { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -634,14 +758,21 @@ namespace NinjaScriptGenerator
     class MIN : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Period { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -673,16 +804,25 @@ namespace NinjaScriptGenerator
     class Pivots : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public PivotRange Range { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public HLCCalculationMode CalcMode { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public FibonacciPivotValue ValuePlot { get; set; }
 
 
@@ -716,12 +856,19 @@ namespace NinjaScriptGenerator
         //Params
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public PriorDayOHLCValue ValuePlot { get; set; }
 
 
@@ -755,11 +902,17 @@ namespace NinjaScriptGenerator
         //Params
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -790,16 +943,26 @@ namespace NinjaScriptGenerator
     }
     class RSI : ICompareData, IIndicator
     {
+        //Params
+        [JsonProperty(Required = Required.Always)]
         public string Period { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Smooth { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public RSIValue ValuePlot { get; set; }
 
 
@@ -831,14 +994,21 @@ namespace NinjaScriptGenerator
     class SMA : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Period { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -870,14 +1040,21 @@ namespace NinjaScriptGenerator
     class StandardDeviation : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Period { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -909,17 +1086,27 @@ namespace NinjaScriptGenerator
     class Stochastics : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string PeriodD { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string PeriodK { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Smooth { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public StochasticsValue ValuePlot { get; set; }
 
 
@@ -951,16 +1138,25 @@ namespace NinjaScriptGenerator
     class StochasticsFast : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string PeriodD { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string PeriodK { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public StochasticsValue ValuePlot { get; set; }
 
 
@@ -992,15 +1188,23 @@ namespace NinjaScriptGenerator
     class Swing : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Strength { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public SwingValue ValuePlot { get; set; }
 
 
@@ -1032,14 +1236,21 @@ namespace NinjaScriptGenerator
     class Trend : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Period { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -1071,16 +1282,25 @@ namespace NinjaScriptGenerator
     class UltimateOscillator : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public string Fast { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Intermediate { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Slow { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -1114,11 +1334,17 @@ namespace NinjaScriptGenerator
         //Params
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
 
 
@@ -1150,17 +1376,27 @@ namespace NinjaScriptGenerator
     class ZigZag : ICompareData, IIndicator
     {
         //Params
+        [JsonProperty(Required = Required.Always)]
         public DeviationType DeviationType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string DeviationValue { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool UseHighLow { get; set; }
 
         //Options
+        [JsonProperty(Required = Required.Always)]
         public PriceType Price { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public bool PlotOnChart { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ZigZagValue ValuePlot { get; set; }
 
 
@@ -1208,8 +1444,11 @@ namespace NinjaScriptGenerator
     class Ask : ICompareData, IPriceAction
     {
         //Options
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
 
 
@@ -1236,8 +1475,11 @@ namespace NinjaScriptGenerator
     class Bid : ICompareData, IPriceAction
     {
         //Options
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
 
 
@@ -1264,9 +1506,13 @@ namespace NinjaScriptGenerator
     class Close : ICompareData, IPriceAction
     {
         //Options
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
 
 
@@ -1293,9 +1539,13 @@ namespace NinjaScriptGenerator
     class High : ICompareData, IPriceAction
     {
         //Options
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
 
 
@@ -1322,9 +1572,13 @@ namespace NinjaScriptGenerator
     class Low : ICompareData, IPriceAction
     {
         //Options
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
 
 
@@ -1351,9 +1605,13 @@ namespace NinjaScriptGenerator
     class Median : ICompareData, IPriceAction
     {
         //Options
+        [JsonProperty(Required = Required.Always)]
         public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
         public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
 
 
@@ -1425,6 +1683,7 @@ namespace NinjaScriptGenerator
     }
     class Volume : ICompareData, IPriceAction
     {
+        [JsonProperty(Required = Required.Always)]
         public int BarsAgo { get; set; }
 
 
@@ -1452,6 +1711,7 @@ namespace NinjaScriptGenerator
     //Time
     class DateValue : ICompareData
     {
+        [JsonProperty(Required = Required.Always)]
         public DateTime Date { get; set; }
 
         //Overrides
@@ -1477,6 +1737,7 @@ namespace NinjaScriptGenerator
     }
     class TimeValue : ICompareData
     {
+        [JsonProperty(Required = Required.Always)]
         public DateTime Time { get; set; }
 
 
@@ -1503,6 +1764,7 @@ namespace NinjaScriptGenerator
     }
     class DayofWeek : ICompareData
     {
+        [JsonProperty(Required = Required.Always)]
         public DayOfWeek DayOfWeek { get; set; }
 
 
@@ -1531,8 +1793,11 @@ namespace NinjaScriptGenerator
     //User Variables and Inputs
     class Variable : ICompareData
     {
+        [JsonProperty(Required = Required.Always)]
         public string Name { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public VariableType Type { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Value { get; set; }
 
 
@@ -1559,19 +1824,25 @@ namespace NinjaScriptGenerator
     }
     class Input : Variable
     {
+        [JsonProperty(Required = Required.Always)]
         public string Description { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public string Minimum { get; set; }
     }
 
     //Actions
     class Long : IOperation
     {
+        [JsonProperty(Required = Required.Always)]
         public TargetActionType Action { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public double Quantity { get; set; }
     }
     class Short : IOperation
     {
+        [JsonProperty(Required = Required.Always)]
         public TargetActionType Action { get; set; }
+        [JsonProperty(Required = Required.Always)]
         public double Quantity { get; set; }
     }
 }
