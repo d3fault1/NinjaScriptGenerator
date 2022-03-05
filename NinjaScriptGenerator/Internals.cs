@@ -169,7 +169,7 @@ namespace NinjaScriptGenerator
                     {
                         Type type = typeof(int);
                         if (sprop.Name == "Offset" || sprop.Name == "OffsetMultiplier" || sprop.Name == "DeviationValue") type = typeof(double);
-                        if (!TypeHandle(cmp.FirstObject, sprop.Name, type, data)) return false;
+                        if (!TypeHandle(cmp.SecondObject, sprop.Name, type, data)) return false;
                     }
                 }
             }
