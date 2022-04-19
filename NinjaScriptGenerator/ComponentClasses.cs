@@ -1791,7 +1791,7 @@ namespace NinjaScriptGenerator
     }
 
     //User Variables and Inputs
-    class Variable : ICompareData
+    class Variable : IVariable
     {
         [JsonProperty(Required = Required.Always)]
         public string Name { get; set; }
@@ -1828,6 +1828,18 @@ namespace NinjaScriptGenerator
         public string Description { get; set; }
         [JsonProperty(Required = Required.Always)]
         public string Minimum { get; set; }
+    }
+
+    class VariableReference : ICompareData, IReference
+    {
+        [JsonProperty(Required = Required.Always)]
+        public string Reference { get; set; }
+    }
+
+    class InputReference : ICompareData, IReference
+    {
+        [JsonProperty(Required = Required.Always)]
+        public string Reference { get; set; }
     }
 
     //Actions

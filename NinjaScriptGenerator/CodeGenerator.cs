@@ -176,19 +176,31 @@ namespace NinjaScriptGenerator
 
                         if (cmp.FirstObject is Ask || cmp.FirstObject is AskVolume || cmp.FirstObject is Bid || cmp.FirstObject is BidVolume || cmp.FirstObject is DateValue || cmp.FirstObject is TimeValue || cmp.FirstObject is DayofWeek) return Errors.IncompatibleCompares;
                         if (cmp.SecondObject is Ask || cmp.SecondObject is AskVolume || cmp.SecondObject is Bid || cmp.SecondObject is BidVolume || cmp.SecondObject is DateValue || cmp.SecondObject is TimeValue || cmp.SecondObject is DayofWeek) return Errors.IncompatibleCompares;
-                        if (cmp.SecondObject is Variable)
+                        if (cmp.SecondObject is IReference)
                         {
-                            Variable scnd = (Variable)cmp.SecondObject;
+                            IVariable scnd = Helper.GetFromReference((IReference)cmp.SecondObject, strategyData);
+                            if (scnd == null)
+                            {
+                                if (cmp.SecondObject is VariableReference) return Errors.InvalidVariableRef;
+                                else if (cmp.SecondObject is InputReference) return Errors.InvalidInputRef;
+                                else return Errors.InternalFatal;
+                            }
                             if (scnd.Type == VariableType.Boolean || scnd.Type == VariableType.String || scnd.Type == VariableType.Time) return Errors.IncompatibleCompares;
                         }
-                        if (cmp.FirstObject is Variable)
+                        if (cmp.FirstObject is IReference)
                         {
-                            Variable frst = (Variable)cmp.FirstObject;
+                            IVariable frst = Helper.GetFromReference((IReference)cmp.FirstObject, strategyData);
+                            if (frst == null)
+                            {
+                                if (cmp.FirstObject is VariableReference) return Errors.InvalidVariableRef;
+                                else if (cmp.FirstObject is InputReference) return Errors.InvalidInputRef;
+                                else return Errors.InternalFatal;
+                            }
                             expression_frst = frst.ToFormatString();
                             if (frst.Type == VariableType.Boolean || frst.Type == VariableType.String || frst.Type == VariableType.Time) return Errors.IncompatibleCompares;
                             else if (frst.Type == VariableType.Int32 || frst.Type == VariableType.Double)
                             {
-                                if (cmp.SecondObject is Variable) return Errors.IncompatibleCompares;
+                                if (cmp.SecondObject is IReference) return Errors.IncompatibleCompares;
                                 else if (cmp.SecondObject is IPriceAction)
                                 {
                                     expression_scnd = ((IPriceAction)cmp.SecondObject).ToFormatString(false);
@@ -266,7 +278,7 @@ namespace NinjaScriptGenerator
                                 }
                                 expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName, false);
                             }
-                            else if (cmp.SecondObject is Variable) expression_scnd = ((Variable)cmp.SecondObject).ToFormatString();
+                            else if (cmp.SecondObject is IReference) expression_scnd = Helper.GetFromReference((IReference)cmp.SecondObject, strategyData).ToFormatString();
                             else if (cmp.SecondObject is IPriceAction)
                             {
                                 if (cmp.FirstObject is Volume && cmp.SecondObject is Volume) return Errors.IncompatibleCompares;
@@ -305,7 +317,7 @@ namespace NinjaScriptGenerator
                                 cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                             }
                             expression_frst = ((IIndicator)cmp.FirstObject).ToFormatString(varName, false);
-                            if (cmp.SecondObject is Variable) expression_scnd = ((Variable)cmp.SecondObject).ToFormatString();
+                            if (cmp.SecondObject is IReference) expression_scnd = Helper.GetFromReference((IReference)cmp.SecondObject, strategyData).ToFormatString();
                             else if (cmp.SecondObject is IPriceAction) expression_scnd = ((IPriceAction)cmp.SecondObject).ToFormatString(false);
                             else if (cmp.SecondObject is IIndicator)
                             {
@@ -367,9 +379,15 @@ namespace NinjaScriptGenerator
                             {
                                 expression_scnd = ((TimeValue)cmp.SecondObject).ToFormatString();
                             }
-                            else if (cmp.SecondObject is Variable)
+                            else if (cmp.SecondObject is IReference)
                             {
-                                Variable vr_scnd = (Variable)cmp.SecondObject;
+                                IVariable vr_scnd = Helper.GetFromReference((IReference)cmp.SecondObject, strategyData);
+                                if (vr_scnd == null)
+                                {
+                                    if (cmp.SecondObject is VariableReference) return Errors.InvalidVariableRef;
+                                    else if (cmp.SecondObject is InputReference) return Errors.InvalidInputRef;
+                                    else return Errors.InternalFatal;
+                                }
                                 if (vr_scnd.Type == VariableType.Time) expression_scnd = vr_scnd.ToFormatString() + ".TimeOfDay";
                                 else return Errors.IncompatibleCompares;
                             }
@@ -388,16 +406,29 @@ namespace NinjaScriptGenerator
                             }
                             else return Errors.IncompatibleCompares;
                         }
-                        else if (cmp.FirstObject is Variable)
+                        else if (cmp.FirstObject is IReference)
                         {
-                            Variable frst = (Variable)cmp.FirstObject;
+                            IVariable frst = Helper.GetFromReference((IReference)cmp.FirstObject, strategyData);
+                            if (frst == null)
+                            {
+                                if (cmp.FirstObject is VariableReference) return Errors.InvalidVariableRef;
+                                else if (cmp.FirstObject is InputReference) return Errors.InvalidInputRef;
+                                else return Errors.InternalFatal;
+                            }
                             if (frst.Type == VariableType.Time)
                             {
                                 expression_frst = frst.ToFormatString() + ".TimeOfDay";
                                 if (cmp.SecondObject is TimeValue) expression_scnd = ((TimeValue)cmp.SecondObject).ToFormatString();
-                                else if (cmp.SecondObject is Variable)
+                                else if (cmp.SecondObject is IReference)
                                 {
-                                    if (((Variable)cmp.SecondObject).Type == VariableType.Time) expression_scnd = ((Variable)cmp.SecondObject).ToFormatString() + ".TimeOfDay";
+                                    var scnd_tmp = Helper.GetFromReference((IReference)cmp.SecondObject, strategyData);
+                                    if (scnd_tmp == null)
+                                    {
+                                        if (cmp.SecondObject is VariableReference) return Errors.InvalidVariableRef;
+                                        else if (cmp.SecondObject is InputReference) return Errors.InvalidInputRef;
+                                        else return Errors.InternalFatal;
+                                    }
+                                    if (scnd_tmp.Type == VariableType.Time) expression_scnd = scnd_tmp.ToFormatString() + ".TimeOfDay";
                                     else return Errors.IncompatibleCompares;
                                 }
                                 else return Errors.IncompatibleCompares;
@@ -406,9 +437,15 @@ namespace NinjaScriptGenerator
                             else
                             {
                                 expression_frst = frst.ToFormatString();
-                                if (cmp.SecondObject is Variable)
+                                if (cmp.SecondObject is IReference)
                                 {
-                                    Variable scnd = (Variable)cmp.SecondObject;
+                                    IVariable scnd = Helper.GetFromReference((IReference)cmp.SecondObject, strategyData);
+                                    if (scnd == null)
+                                    {
+                                        if (cmp.SecondObject is VariableReference) return Errors.InvalidVariableRef;
+                                        else if (cmp.SecondObject is InputReference) return Errors.InvalidInputRef;
+                                        else return Errors.InternalFatal;
+                                    }
                                     if (scnd.Type == VariableType.Double || scnd.Type == VariableType.Int32) expression_scnd = scnd.ToFormatString();
                                     else return Errors.IncompatibleCompares;
                                 }
@@ -449,45 +486,9 @@ namespace NinjaScriptGenerator
                                 else return Errors.IncompatibleCompares;
                             }
                         }
-                        else
+                        else if (cmp.FirstObject is IPriceAction)
                         {
-                            if (cmp.FirstObject is IIndicator)
-                            {
-                                var type = cmp.FirstObject.GetType();
-                                string varName = type.Name;
-                                if (pairs.ContainsKey(type))
-                                {
-                                    if (pairs[type].ContainsKey(cmp.FirstObject))
-                                    {
-                                        varName += pairs[type][cmp.FirstObject];
-                                    }
-                                    else
-                                    {
-                                        var num = pairs[type].Count + 1;
-                                        varName += num;
-                                        pairs[type].Add(cmp.FirstObject, num);
-                                        class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
-                                        cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.FirstObject).ToCtorString())));
-                                        cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
-                                    }
-                                }
-                                else
-                                {
-                                    pairs.Add(type, new Dictionary<ICompareData, int>());
-                                    pairs[type].Add(cmp.FirstObject, 1);
-                                    varName += "1";
-                                    class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
-                                    cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.FirstObject).ToCtorString())));
-                                    cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
-                                }
-                                expression_frst = ((IIndicator)cmp.FirstObject).ToFormatString(varName);
-                            }
-                            else if (cmp.FirstObject is IPriceAction)
-                            {
-                                expression_frst = ((IPriceAction)cmp.FirstObject).ToFormatString();
-                            }
+                            expression_frst = ((IPriceAction)cmp.FirstObject).ToFormatString();
                             if (cmp.SecondObject is IIndicator)
                             {
                                 var type = cmp.SecondObject.GetType();
@@ -521,12 +522,100 @@ namespace NinjaScriptGenerator
                                 }
                                 expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName);
                             }
-                            else if (cmp.SecondObject is IPriceAction)
+                            else if (cmp.SecondObject is IReference)
                             {
-                                expression_scnd = ((IPriceAction)cmp.SecondObject).ToFormatString();
+                                IVariable scnd = Helper.GetFromReference((IReference)cmp.SecondObject, strategyData);
+                                if (scnd == null)
+                                {
+                                    if (cmp.SecondObject is VariableReference) return Errors.InvalidVariableRef;
+                                    else if (cmp.SecondObject is InputReference) return Errors.InvalidInputRef;
+                                    else return Errors.InternalFatal;
+                                }
+                                if (scnd.Type == VariableType.Int32 || scnd.Type == VariableType.Double) expression_scnd = scnd.ToFormatString();
+                                else return Errors.IncompatibleCompares;
                             }
+                            else if (cmp.SecondObject is IPriceAction) expression_scnd = ((IPriceAction)cmp.SecondObject).ToFormatString();
                         }
-
+                        else if (cmp.FirstObject is IIndicator)
+                        {
+                            var type = cmp.FirstObject.GetType();
+                            string varName = type.Name;
+                            if (pairs.ContainsKey(type))
+                            {
+                                if (pairs[type].ContainsKey(cmp.FirstObject))
+                                {
+                                    varName += pairs[type][cmp.FirstObject];
+                                }
+                                else
+                                {
+                                    var num = pairs[type].Count + 1;
+                                    varName += num;
+                                    pairs[type].Add(cmp.FirstObject, num);
+                                    class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
+                                    cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.FirstObject).ToCtorString())));
+                                    cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
+                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                }
+                            }
+                            else
+                            {
+                                pairs.Add(type, new Dictionary<ICompareData, int>());
+                                pairs[type].Add(cmp.FirstObject, 1);
+                                varName += "1";
+                                class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
+                                cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.FirstObject).ToCtorString())));
+                                cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
+                                cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                            }
+                            expression_frst = ((IIndicator)cmp.FirstObject).ToFormatString(varName);
+                            if (cmp.SecondObject is IReference)
+                            {
+                                IVariable scnd = Helper.GetFromReference((IReference)cmp.SecondObject, strategyData);
+                                if (scnd == null)
+                                {
+                                    if (cmp.SecondObject is VariableReference) return Errors.InvalidVariableRef;
+                                    else if (cmp.SecondObject is InputReference) return Errors.InvalidInputRef;
+                                    else return Errors.InternalFatal;
+                                }
+                                if (scnd.Type == VariableType.Int32 || scnd.Type == VariableType.Double) expression_scnd = scnd.ToFormatString();
+                                else return Errors.IncompatibleCompares;
+                            }
+                            else if (cmp.SecondObject is IPriceAction) expression_scnd = ((IPriceAction)cmp.SecondObject).ToFormatString();
+                            else if (cmp.SecondObject is IIndicator)
+                            {
+                                var scnd_type = cmp.SecondObject.GetType();
+                                string scnd_varName = scnd_type.Name;
+                                if (pairs.ContainsKey(scnd_type))
+                                {
+                                    if (pairs[scnd_type].ContainsKey(cmp.SecondObject))
+                                    {
+                                        scnd_varName += pairs[scnd_type][cmp.SecondObject];
+                                    }
+                                    else
+                                    {
+                                        var num = pairs[scnd_type].Count + 1;
+                                        scnd_varName += num;
+                                        pairs[scnd_type].Add(cmp.SecondObject, num);
+                                        class_fields.Add(new CodeMemberField(scnd_type.Name, scnd_varName) { Attributes = MemberAttributes.Private });
+                                        cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, scnd_varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
+                                        cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{scnd_varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
+                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{scnd_varName}"))));
+                                    }
+                                }
+                                else
+                                {
+                                    pairs.Add(scnd_type, new Dictionary<ICompareData, int>());
+                                    pairs[scnd_type].Add(cmp.SecondObject, 1);
+                                    scnd_varName += "1";
+                                    class_fields.Add(new CodeMemberField(scnd_type.Name, scnd_varName) { Attributes = MemberAttributes.Private });
+                                    cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, scnd_varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
+                                    cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{scnd_varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
+                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{scnd_varName}"))));
+                                }
+                                expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(scnd_varName);
+                            }
+                            else return Errors.IncompatibleCompares;
+                        }
                         if (expression_frst != "" && expression_scnd != "") conditions.Add(new CodeBinaryOperatorExpression(new CodeSnippetExpression(expression_frst), (CodeBinaryOperatorType)cmp.Operation, new CodeSnippetExpression(expression_scnd)));
                     }
                 }

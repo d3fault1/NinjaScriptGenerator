@@ -14,6 +14,7 @@ namespace NinjaScriptGenerator
         public static string InvalidVariableName = "Error: Variable Name is Invalid";
         public static string InvalidVariable = "Error: Variable Value is Incompatible with the Variable Type";
         public static string InvalidVariableRef = "Error: Invalid Variable Reference. Variable Definition does not Exist";
+        public static string InvalidInputRef = "Error: Invalid Input Reference. Input Definition does not Exist";
         public static string InvalidParam = "Error: Data Parameter is Incompatible with the Data Type";
         public static string InvalidEnum = "Error: Parameter Type is Invalid";
         public static string DuplicateInstruments = "Error: Cannot Contain Multiple Instruments with Same Setup";
@@ -53,6 +54,13 @@ namespace NinjaScriptGenerator
                 case OffsetType.Ticks:
                     return $"({input} + ({offset} * TickSize))";
             }
+        }
+
+        public static IVariable GetFromReference(IReference reference, StrategyData data)
+        {
+            if (reference is VariableReference) return data.Variables.FirstOrDefault(v => v.Name == reference.Reference);
+            else if (reference is InputReference) return data.Inputs.FirstOrDefault(v => v.Name == reference.Reference);
+            else return null;
         }
 
         public static bool FormatComponents(StrategyData data, out string error)
@@ -463,11 +471,22 @@ namespace NinjaScriptGenerator
     interface ICompareData
     {
     }
+    interface IReference
+    {
+        string Reference { get; set; }
+    }
     interface IIndicator
     {
         bool PlotOnChart { get; set; }
         string ToCtorString();
         string ToFormatString(string varName, bool includeBarsAgo = true);
+    }
+    interface IVariable
+    {
+        string Name { get; set; }
+        VariableType Type { get; set; }
+        string Value { get; set; }
+        string ToFormatString();
     }
     interface IPriceAction
     {

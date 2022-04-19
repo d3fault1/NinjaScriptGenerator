@@ -34,13 +34,15 @@ namespace NinjaScriptGenerator
             //Input ip = new Input
             //{
             //    Name = "MyInput",
+            //    Description = "My input description",
             //    Type = VariableType.Double,
             //    Value = "5.5",
             //    Minimum = "1"
             //};
             //ConditionSet cs = new ConditionSet
             //{
-            //    Compares = new CompareData[] { new CompareData
+            //    Compares = new CompareData[] {
+            //        new CompareData
             //        {
             //            FirstObject = new Bollinger
             //            {
@@ -53,14 +55,18 @@ namespace NinjaScriptGenerator
             //                Price = PriceType.Weighted,
             //                ValuePlot = BandValue.Upper
             //            },
-            //            SecondObject = new CurrentDayOHL
+            //            //SecondObject = new CurrentDayOHL
+            //            //{
+            //            //    BarsAgo = 1,
+            //            //    Offset = "2",
+            //            //    OffsetType = OffsetType.Arithmetic,
+            //            //    PlotOnChart = true,
+            //            //    Price = PriceType.High,
+            //            //    ValuePlot = CurrentDayOHLValue.CurrentOpen
+            //            //},
+            //            SecondObject = new VariableReference
             //            {
-            //                BarsAgo = 1,
-            //                Offset = "2",
-            //                OffsetType = OffsetType.Arithmetic,
-            //                PlotOnChart = true,
-            //                Price = PriceType.High,
-            //                ValuePlot = CurrentDayOHLValue.CurrentOpen
+            //                Reference = "MyVar"
             //            },
             //            Operation = CompareType.Greater
             //        },
