@@ -211,9 +211,18 @@ namespace NinjaScriptGenerator
                                     string varName = type.Name;
                                     if (pairs.ContainsKey(type))
                                     {
+                                        var plotchartflag = true;
                                         if (pairs[type].ContainsKey(cmp.SecondObject))
                                         {
                                             varName += pairs[type][cmp.SecondObject];
+                                            try
+                                            {
+                                                plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.SecondObject)).PlotOnChart;
+                                            }
+                                            catch
+                                            {
+                                                return Errors.InternalFatal;
+                                            }
                                         }
                                         else
                                         {
@@ -222,6 +231,10 @@ namespace NinjaScriptGenerator
                                             pairs[type].Add(cmp.SecondObject, num);
                                             class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                             cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
+                                        }
+
+                                        if (plotchartflag)
+                                        {
                                             cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
                                             cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                         }
@@ -233,8 +246,11 @@ namespace NinjaScriptGenerator
                                         varName += "1";
                                         class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
-                                        cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                        if (((IIndicator)cmp.SecondObject).PlotOnChart)
+                                        {
+                                            cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
+                                            cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                        }
                                     }
                                     expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName, false);
                                 }
@@ -251,9 +267,18 @@ namespace NinjaScriptGenerator
                                 string varName = type.Name;
                                 if (pairs.ContainsKey(type))
                                 {
+                                    var plotchartflag = true;
                                     if (pairs[type].ContainsKey(cmp.SecondObject))
                                     {
                                         varName += pairs[type][cmp.SecondObject];
+                                        try
+                                        {
+                                            plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.SecondObject)).PlotOnChart;
+                                        }
+                                        catch
+                                        {
+                                            return Errors.InternalFatal;
+                                        }
                                     }
                                     else
                                     {
@@ -262,6 +287,10 @@ namespace NinjaScriptGenerator
                                         pairs[type].Add(cmp.SecondObject, num);
                                         class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
+                                    }
+
+                                    if (plotchartflag)
+                                    {
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
                                         cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                     }
@@ -273,8 +302,11 @@ namespace NinjaScriptGenerator
                                     varName += "1";
                                     class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
-                                    cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                    if (((IIndicator)cmp.SecondObject).PlotOnChart)
+                                    {
+                                        cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
+                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                    }
                                 }
                                 expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName, false);
                             }
@@ -291,9 +323,18 @@ namespace NinjaScriptGenerator
                             string varName = type.Name;
                             if (pairs.ContainsKey(type))
                             {
+                                var plotchartflag = true;
                                 if (pairs[type].ContainsKey(cmp.FirstObject))
                                 {
                                     varName += pairs[type][cmp.FirstObject];
+                                    try
+                                    {
+                                        plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.FirstObject)).PlotOnChart;
+                                    }
+                                    catch
+                                    {
+                                        return Errors.InternalFatal;
+                                    }
                                 }
                                 else
                                 {
@@ -302,6 +343,10 @@ namespace NinjaScriptGenerator
                                     pairs[type].Add(cmp.FirstObject, num);
                                     class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.FirstObject).ToCtorString())));
+                                }
+
+                                if (plotchartflag)
+                                {
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
                                     cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                 }
@@ -313,8 +358,11 @@ namespace NinjaScriptGenerator
                                 varName += "1";
                                 class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                 cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.FirstObject).ToCtorString())));
-                                cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                if (((IIndicator)cmp.FirstObject).PlotOnChart)
+                                {
+                                    cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
+                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                }
                             }
                             expression_frst = ((IIndicator)cmp.FirstObject).ToFormatString(varName, false);
                             if (cmp.SecondObject is IReference) expression_scnd = Helper.GetFromReference((IReference)cmp.SecondObject, strategyData).ToFormatString();
@@ -325,9 +373,18 @@ namespace NinjaScriptGenerator
                                 varName = type.Name;
                                 if (pairs.ContainsKey(type))
                                 {
+                                    var plotchartflag = true;
                                     if (pairs[type].ContainsKey(cmp.SecondObject))
                                     {
                                         varName += pairs[type][cmp.SecondObject];
+                                        try
+                                        {
+                                            plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.SecondObject)).PlotOnChart;
+                                        }
+                                        catch
+                                        {
+                                            return Errors.InternalFatal;
+                                        }
                                     }
                                     else
                                     {
@@ -336,6 +393,10 @@ namespace NinjaScriptGenerator
                                         pairs[type].Add(cmp.SecondObject, num);
                                         class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
+                                    }
+
+                                    if (plotchartflag)
+                                    {
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
                                         cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                     }
@@ -347,8 +408,11 @@ namespace NinjaScriptGenerator
                                     varName += "1";
                                     class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
-                                    cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                    if (((IIndicator)cmp.SecondObject).PlotOnChart)
+                                    {
+                                        cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
+                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                    }
                                 }
                                 expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName, false);
                             }
@@ -456,9 +520,18 @@ namespace NinjaScriptGenerator
                                     string varName = type.Name;
                                     if (pairs.ContainsKey(type))
                                     {
+                                        var plotchartflag = true;
                                         if (pairs[type].ContainsKey(cmp.SecondObject))
                                         {
                                             varName += pairs[type][cmp.SecondObject];
+                                            try
+                                            {
+                                                plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.SecondObject)).PlotOnChart;
+                                            }
+                                            catch
+                                            {
+                                                return Errors.InternalFatal;
+                                            }
                                         }
                                         else
                                         {
@@ -467,6 +540,10 @@ namespace NinjaScriptGenerator
                                             pairs[type].Add(cmp.SecondObject, num);
                                             class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                             cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
+                                        }
+
+                                        if (plotchartflag)
+                                        {
                                             cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
                                             cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                         }
@@ -478,8 +555,11 @@ namespace NinjaScriptGenerator
                                         varName += "1";
                                         class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
-                                        cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                        if (((IIndicator)cmp.SecondObject).PlotOnChart)
+                                        {
+                                            cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
+                                            cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                        }
                                     }
                                     expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName);
                                 }
@@ -495,9 +575,18 @@ namespace NinjaScriptGenerator
                                 string varName = type.Name;
                                 if (pairs.ContainsKey(type))
                                 {
+                                    var plotchartflag = true;
                                     if (pairs[type].ContainsKey(cmp.SecondObject))
                                     {
                                         varName += pairs[type][cmp.SecondObject];
+                                        try
+                                        {
+                                            plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.SecondObject)).PlotOnChart;
+                                        }
+                                        catch
+                                        {
+                                            return Errors.InternalFatal;
+                                        }
                                     }
                                     else
                                     {
@@ -506,6 +595,10 @@ namespace NinjaScriptGenerator
                                         pairs[type].Add(cmp.SecondObject, num);
                                         class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
+                                    }
+
+                                    if (plotchartflag)
+                                    {
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
                                         cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                     }
@@ -517,8 +610,11 @@ namespace NinjaScriptGenerator
                                     varName += "1";
                                     class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
-                                    cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                    if (((IIndicator)cmp.SecondObject).PlotOnChart)
+                                    {
+                                        cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
+                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                    }
                                 }
                                 expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(varName);
                             }
@@ -542,9 +638,18 @@ namespace NinjaScriptGenerator
                             string varName = type.Name;
                             if (pairs.ContainsKey(type))
                             {
+                                var plotchartflag = true;
                                 if (pairs[type].ContainsKey(cmp.FirstObject))
                                 {
                                     varName += pairs[type][cmp.FirstObject];
+                                    try
+                                    {
+                                        plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.FirstObject)).PlotOnChart;
+                                    }
+                                    catch
+                                    {
+                                        return Errors.InternalFatal;
+                                    }
                                 }
                                 else
                                 {
@@ -553,6 +658,10 @@ namespace NinjaScriptGenerator
                                     pairs[type].Add(cmp.FirstObject, num);
                                     class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.FirstObject).ToCtorString())));
+                                }
+
+                                if (plotchartflag)
+                                {
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
                                     cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
                                 }
@@ -564,8 +673,11 @@ namespace NinjaScriptGenerator
                                 varName += "1";
                                 class_fields.Add(new CodeMemberField(type.Name, varName) { Attributes = MemberAttributes.Private });
                                 cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, varName), new CodeSnippetExpression(((IIndicator)cmp.FirstObject).ToCtorString())));
-                                cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                if (((IIndicator)cmp.FirstObject).PlotOnChart)
+                                {
+                                    cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
+                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{varName}"))));
+                                }
                             }
                             expression_frst = ((IIndicator)cmp.FirstObject).ToFormatString(varName);
                             if (cmp.SecondObject is IReference)
@@ -587,9 +699,18 @@ namespace NinjaScriptGenerator
                                 string scnd_varName = scnd_type.Name;
                                 if (pairs.ContainsKey(scnd_type))
                                 {
+                                    var plotchartflag = true;
                                     if (pairs[scnd_type].ContainsKey(cmp.SecondObject))
                                     {
                                         scnd_varName += pairs[scnd_type][cmp.SecondObject];
+                                        try
+                                        {
+                                            plotchartflag = !((IIndicator)pairs[scnd_type].Keys.Single(a => a == cmp.SecondObject)).PlotOnChart;
+                                        }
+                                        catch
+                                        {
+                                            return Errors.InternalFatal;
+                                        }
                                     }
                                     else
                                     {
@@ -598,6 +719,10 @@ namespace NinjaScriptGenerator
                                         pairs[scnd_type].Add(cmp.SecondObject, num);
                                         class_fields.Add(new CodeMemberField(scnd_type.Name, scnd_varName) { Attributes = MemberAttributes.Private });
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, scnd_varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
+                                    }
+
+                                    if (plotchartflag)
+                                    {
                                         cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{scnd_varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
                                         cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{scnd_varName}"))));
                                     }
@@ -609,8 +734,11 @@ namespace NinjaScriptGenerator
                                     scnd_varName += "1";
                                     class_fields.Add(new CodeMemberField(scnd_type.Name, scnd_varName) { Attributes = MemberAttributes.Private });
                                     cond_setdatald.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(null, scnd_varName), new CodeSnippetExpression(((IIndicator)cmp.SecondObject).ToCtorString())));
-                                    cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{scnd_varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
-                                    cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{scnd_varName}"))));
+                                    if (((IIndicator)cmp.SecondObject).PlotOnChart)
+                                    {
+                                        cond_setdatald.Add(new CodeAssignStatement(new CodeSnippetExpression($"{scnd_varName}.Plots[0].Brush"), new CodeSnippetExpression("Brushes.Red")));
+                                        cond_setdatald.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(null, "AddChartIndicator", new CodeSnippetExpression($"{scnd_varName}"))));
+                                    }
                                 }
                                 expression_scnd = ((IIndicator)cmp.SecondObject).ToFormatString(scnd_varName);
                             }
