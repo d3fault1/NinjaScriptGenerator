@@ -211,13 +211,13 @@ namespace NinjaScriptGenerator
                                     string varName = type.Name;
                                     if (pairs.ContainsKey(type))
                                     {
-                                        var plotchartflag = true;
+                                        var plotchartflag = ((IIndicator)cmp.SecondObject).PlotOnChart;
                                         if (pairs[type].ContainsKey(cmp.SecondObject))
                                         {
                                             varName += pairs[type][cmp.SecondObject];
                                             try
                                             {
-                                                plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.SecondObject)).PlotOnChart;
+                                                if (((IIndicator)pairs[type].Keys.Single(a => a.Equals(cmp.SecondObject))).PlotOnChart) plotchartflag = false;                                               
                                             }
                                             catch
                                             {
@@ -267,13 +267,13 @@ namespace NinjaScriptGenerator
                                 string varName = type.Name;
                                 if (pairs.ContainsKey(type))
                                 {
-                                    var plotchartflag = true;
+                                    var plotchartflag = ((IIndicator)cmp.SecondObject).PlotOnChart;
                                     if (pairs[type].ContainsKey(cmp.SecondObject))
                                     {
                                         varName += pairs[type][cmp.SecondObject];
                                         try
                                         {
-                                            plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.SecondObject)).PlotOnChart;
+                                            if (((IIndicator)pairs[type].Keys.Single(a => a.Equals(cmp.SecondObject))).PlotOnChart) plotchartflag = false;
                                         }
                                         catch
                                         {
@@ -323,13 +323,13 @@ namespace NinjaScriptGenerator
                             string varName = type.Name;
                             if (pairs.ContainsKey(type))
                             {
-                                var plotchartflag = true;
+                                var plotchartflag = ((IIndicator)cmp.FirstObject).PlotOnChart;
                                 if (pairs[type].ContainsKey(cmp.FirstObject))
                                 {
                                     varName += pairs[type][cmp.FirstObject];
                                     try
                                     {
-                                        plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.FirstObject)).PlotOnChart;
+                                        if (((IIndicator)pairs[type].Keys.Single(a => a.Equals(cmp.FirstObject))).PlotOnChart) plotchartflag = false;
                                     }
                                     catch
                                     {
@@ -373,13 +373,13 @@ namespace NinjaScriptGenerator
                                 varName = type.Name;
                                 if (pairs.ContainsKey(type))
                                 {
-                                    var plotchartflag = true;
+                                    var plotchartflag = ((IIndicator)cmp.SecondObject).PlotOnChart;
                                     if (pairs[type].ContainsKey(cmp.SecondObject))
                                     {
                                         varName += pairs[type][cmp.SecondObject];
                                         try
                                         {
-                                            plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.SecondObject)).PlotOnChart;
+                                            if (((IIndicator)pairs[type].Keys.Single(a => a.Equals(cmp.SecondObject))).PlotOnChart) plotchartflag = false;
                                         }
                                         catch
                                         {
@@ -520,13 +520,13 @@ namespace NinjaScriptGenerator
                                     string varName = type.Name;
                                     if (pairs.ContainsKey(type))
                                     {
-                                        var plotchartflag = true;
+                                        var plotchartflag = ((IIndicator)cmp.SecondObject).PlotOnChart;
                                         if (pairs[type].ContainsKey(cmp.SecondObject))
                                         {
                                             varName += pairs[type][cmp.SecondObject];
                                             try
                                             {
-                                                plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.SecondObject)).PlotOnChart;
+                                                if (((IIndicator)pairs[type].Keys.Single(a => a.Equals(cmp.SecondObject))).PlotOnChart) plotchartflag = false;
                                             }
                                             catch
                                             {
@@ -575,13 +575,13 @@ namespace NinjaScriptGenerator
                                 string varName = type.Name;
                                 if (pairs.ContainsKey(type))
                                 {
-                                    var plotchartflag = true;
+                                    var plotchartflag = ((IIndicator)cmp.SecondObject).PlotOnChart;
                                     if (pairs[type].ContainsKey(cmp.SecondObject))
                                     {
                                         varName += pairs[type][cmp.SecondObject];
                                         try
                                         {
-                                            plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.SecondObject)).PlotOnChart;
+                                            if (((IIndicator)pairs[type].Keys.Single(a => a.Equals(cmp.SecondObject))).PlotOnChart) plotchartflag = false;
                                         }
                                         catch
                                         {
@@ -638,13 +638,13 @@ namespace NinjaScriptGenerator
                             string varName = type.Name;
                             if (pairs.ContainsKey(type))
                             {
-                                var plotchartflag = true;
+                                var plotchartflag = ((IIndicator)cmp.FirstObject).PlotOnChart;
                                 if (pairs[type].ContainsKey(cmp.FirstObject))
                                 {
                                     varName += pairs[type][cmp.FirstObject];
                                     try
                                     {
-                                        plotchartflag = !((IIndicator)pairs[type].Keys.Single(a => a == cmp.FirstObject)).PlotOnChart;
+                                        if (((IIndicator)pairs[type].Keys.Single(a => a.Equals(cmp.FirstObject))).PlotOnChart) plotchartflag = false;
                                     }
                                     catch
                                     {
@@ -699,13 +699,13 @@ namespace NinjaScriptGenerator
                                 string scnd_varName = scnd_type.Name;
                                 if (pairs.ContainsKey(scnd_type))
                                 {
-                                    var plotchartflag = true;
+                                    var plotchartflag = ((IIndicator)cmp.SecondObject).PlotOnChart;
                                     if (pairs[scnd_type].ContainsKey(cmp.SecondObject))
                                     {
                                         scnd_varName += pairs[scnd_type][cmp.SecondObject];
                                         try
                                         {
-                                            plotchartflag = !((IIndicator)pairs[scnd_type].Keys.Single(a => a == cmp.SecondObject)).PlotOnChart;
+                                            if (((IIndicator)pairs[scnd_type].Keys.Single(a => a.Equals(cmp.SecondObject))).PlotOnChart) plotchartflag = false;
                                         }
                                         catch
                                         {
