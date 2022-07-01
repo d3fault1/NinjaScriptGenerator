@@ -10,6 +10,7 @@ namespace NinjaScriptGenerator
     {
         static void Main(string[] args)
         {
+            #region Test Region
             //StrategyData strategyData = new StrategyData();
             //strategyData.Name = "My Strategy";
             //strategyData.Description = "This is a test strategy";
@@ -113,6 +114,7 @@ namespace NinjaScriptGenerator
             //strategyData.TargetActions = new TargetAction[] { ta };
             //var output = JsonConvert.SerializeObject(strategyData, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented, Culture = CultureInfo.InvariantCulture });
             //File.WriteAllText(@"F:\sample.json", output);
+            #endregion
 
             try
             {
