@@ -1503,6 +1503,39 @@ namespace NinjaScriptGenerator
             else return false;
         }
     }
+    class Open : ICompareData, IPriceAction
+    {
+        //Options
+        [JsonProperty(Required = Required.Always)]
+        public OffsetType OffsetType { get; set; }
+        [JsonProperty(Required = Required.Always)]
+        public ArithmeticOperator Operator { get; set; } = ArithmeticOperator.Plus;
+        [JsonProperty(Required = Required.Always)]
+        public string Offset { get; set; }
+        [JsonProperty(Required = Required.Always)]
+        public int BarsAgo { get; set; }
+
+
+        //Overrides
+        public string ToFormatString(bool includeBarsAgo = true)
+        {
+            return includeBarsAgo ? Helper.ToStringHelperForOffset($"Open[{BarsAgo}]", Offset, OffsetType, Operator) : Helper.ToStringHelperForOffset($"Open", Offset, OffsetType, Operator);
+        }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is Open)
+            {
+                return true;
+            }
+            else return false;
+        }
+    }
     class Close : ICompareData, IPriceAction
     {
         //Options
