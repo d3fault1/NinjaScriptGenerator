@@ -21,6 +21,7 @@ namespace NinjaScriptGenerator
         public static string DuplicateTargetActions = "Error: Cannot Contain Multiple Target Actions with Same Parameters";
         public static string InvalidCompares = "Error: Compare Data is Invalid. Please Check if Proper Data is Supplied";
         public static string InvalidCondition = "Error: ConditionSet is Invalid. Please Check if Proper Data is Supplied";
+        public static string FileGeneration = "Error: Could not generate the output file structure. Please make sure required folder structure exists";
         public static string InternalFatal = "Error: Something That Should Not be Happened Just Happened. Please Refer to the Developer";
     }
 

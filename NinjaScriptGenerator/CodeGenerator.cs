@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 
@@ -840,11 +841,21 @@ namespace NinjaScriptGenerator
             op.BracingStyle = "C";
             op.VerbatimOrder = true;
 
-            using (StreamWriter sw = new StreamWriter(File.OpenWrite($"{strategyData.Name}.cs")))
+            try
             {
-                provider.GenerateCodeFromCompileUnit(cunit, sw, op);
+                foreach (var file in new DirectoryInfo("Temp\\Strategies").GetFiles()) file.Delete();
+                using (StreamWriter sw = new StreamWriter(File.OpenWrite($"Temp\\Strategies\\{strategyData.Name}.cs")))
+                {
+                    provider.GenerateCodeFromCompileUnit(cunit, sw, op);
+                }
+                ZipFile.CreateFromDirectory($"Temp", $"{strategyData.Name}.zip");
+                if (File.Exists($"Temp\\Strategies\\{strategyData.Name}.cs")) File.Delete($"Temp\\Strategies\\{strategyData.Name}.cs");
             }
-
+            catch
+            {
+                return Errors.FileGeneration;
+            }
+            
             //provider.GenerateCodeFromCompileUnit(cunit, Console.Out, op);
 
             return Errors.Success;
